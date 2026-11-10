@@ -1,5 +1,3 @@
-"""Routes for the reviews table (composite PK)."""
-
 from flask import Blueprint
 from my_project.auth.controller import reviews_controller
 
@@ -16,6 +14,11 @@ reviews_bp.add_url_rule(
     '/<int:account_id>/<int:app_id>',
     view_func=reviews_controller.update,
     methods=['PUT']
+)
+reviews_bp.add_url_rule(
+    '/<int:account_id>/<int:app_id>',
+    view_func=reviews_controller.patch,
+    methods=['PATCH']
 )
 reviews_bp.add_url_rule(
     '/<int:account_id>/<int:app_id>',

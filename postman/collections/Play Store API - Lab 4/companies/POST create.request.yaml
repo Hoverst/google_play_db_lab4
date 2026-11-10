@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/companies"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "company_name": "Example Soft",
+      "contact_email": "dev@example.com",
+      "developer_account_id": 1
+    }
+order: 3000

@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/accounts/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "oleksandr.melnyk@example.com",
+      "password_hash": "keep_or_replace_hash",
+      "name": "Oleksandr Melnyk",
+      "is_developer": 0,
+      "country": "Ukraine"
+    }
+order: 4000

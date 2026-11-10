@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/reviews"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "account_id": 1,
+      "app_id": 1,
+      "rating": 4.5,
+      "comment": "Great app",
+      "created_at": "2026-01-01T12:00:00"
+    }
+order: 3000

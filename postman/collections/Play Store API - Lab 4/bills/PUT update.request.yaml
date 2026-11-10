@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/bills/1/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "currency": "USD",
+      "amount_paid": 2.99,
+      "payment_card_id": 1,
+      "paid_at": "2023-06-01T12:00:00",
+      "discount_id": null
+    }
+order: 4000

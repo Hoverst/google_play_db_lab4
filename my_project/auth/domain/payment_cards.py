@@ -1,10 +1,6 @@
-# payment_cards.py - SQLAlchemy model for the 'payment_cards' table
-
 from my_project import db
 
-
 class PaymentCard(db.Model):
-    """Represents a payment card linked to an account in the play_store database."""
 
     __tablename__ = 'payment_cards'
 
@@ -15,7 +11,6 @@ class PaymentCard(db.Model):
     exp_date = db.Column(db.Date, nullable=False)
     last4 = db.Column(db.String(4), nullable=False)
 
-    # Relationships
     account = db.relationship('Account', back_populates='payment_cards', lazy='select')
     bills = db.relationship(
         'Bill',
@@ -26,7 +21,6 @@ class PaymentCard(db.Model):
     )
 
     def to_dict(self):
-        """Convert all columns to a JSON-safe dictionary."""
         return {
             'id': self.id,
             'account_id': self.account_id,

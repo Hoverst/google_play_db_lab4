@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/categories/1"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Tools"
+    }
+order: 4000

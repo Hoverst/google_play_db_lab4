@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/companies/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "company_name": "PixelForge Studio",
+      "contact_email": "support@pixelforge.example.com",
+      "developer_account_id": 6
+    }
+order: 4000

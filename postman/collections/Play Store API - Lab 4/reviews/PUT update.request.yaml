@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/reviews/1/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "rating": 4.5,
+      "comment": "Great app"
+    }
+order: 4000

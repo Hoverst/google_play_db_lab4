@@ -1,10 +1,6 @@
-# accounts.py - SQLAlchemy model for the 'accounts' table
-
 from my_project import db
 
-
 class Account(db.Model):
-    """Represents a user account in the play_store database."""
 
     __tablename__ = 'accounts'
 
@@ -14,9 +10,8 @@ class Account(db.Model):
     name = db.Column(db.String(70), nullable=False)
     is_developer = db.Column(db.SmallInteger, nullable=False, default=0)
     country = db.Column(db.String(70), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
 
-    # Relationships
     devices = db.relationship('Device', secondary='accounts_devices', back_populates='accounts', lazy='select')
     companies = db.relationship('Company', back_populates='account', lazy='select')
     payment_cards = db.relationship('PaymentCard', back_populates='account', lazy='select')
@@ -25,7 +20,6 @@ class Account(db.Model):
     library_entries = db.relationship('Library', back_populates='account', lazy='select')
 
     def to_dict(self):
-        """Convert all columns to a JSON-safe dictionary."""
         return {
             'id': self.id,
             'email': self.email,

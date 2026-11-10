@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/apps_versions/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "app_id": 1,
+      "version": "1.0.0",
+      "size_bytes": 45234176
+    }
+order: 4000

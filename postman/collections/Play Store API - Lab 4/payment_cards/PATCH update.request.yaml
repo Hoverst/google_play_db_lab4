@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/payment_cards/1"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "card_brand": "Mastercard",
+      "last4": "4444"
+    }
+order: 4000

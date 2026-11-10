@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/apps"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "Example App",
+      "caption": "A sample application",
+      "price": 4.99,
+      "currency": "USD",
+      "company_id": 1
+    }
+order: 3000

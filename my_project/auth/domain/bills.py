@@ -1,10 +1,6 @@
-# bills.py - SQLAlchemy model for the 'bills' table
-
 from my_project import db
 
-
 class Bill(db.Model):
-    """Represents a billing record for an app purchase in the play_store database."""
 
     __tablename__ = 'bills'
     __table_args__ = (
@@ -24,10 +20,9 @@ class Bill(db.Model):
     currency = db.Column(db.String(3), nullable=False, default='USD')
     amount_paid = db.Column(db.Numeric(10, 2), nullable=False)
     payment_card_id = db.Column(db.Integer, nullable=False)
-    paid_at = db.Column(db.DateTime, nullable=False)
+    paid_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
     discount_id = db.Column(db.Integer, nullable=True)
 
-    # Relationships
     account = db.relationship('Account', back_populates='bills', lazy='select')
     app = db.relationship('App', back_populates='bills', lazy='select')
     payment_card = db.relationship(
@@ -46,7 +41,6 @@ class Bill(db.Model):
     )
 
     def to_dict(self):
-        """Convert all columns to a JSON-safe dictionary."""
         return {
             'account_id': self.account_id,
             'app_id': self.app_id,

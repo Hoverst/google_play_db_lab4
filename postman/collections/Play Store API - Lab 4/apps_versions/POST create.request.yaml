@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/apps_versions"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "app_id": 1,
+      "version": "1.0.0",
+      "size_bytes": 1048576,
+      "created_at": "2026-01-01T12:00:00"
+    }
+order: 3000

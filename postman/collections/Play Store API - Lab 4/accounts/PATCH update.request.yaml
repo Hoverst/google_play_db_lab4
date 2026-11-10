@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/accounts/1"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "name": "Updated User",
+      "country": "Canada"
+    }
+order: 4000

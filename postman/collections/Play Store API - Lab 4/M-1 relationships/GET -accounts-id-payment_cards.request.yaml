@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /accounts/:id/payment_cards
+url: "{{baseUrl}}/accounts/1/payment_cards"
+method: GET
+order: 2000

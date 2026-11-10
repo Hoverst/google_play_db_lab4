@@ -1,5 +1,3 @@
-"""Routes for the bills table (composite PK)."""
-
 from flask import Blueprint
 from my_project.auth.controller import bills_controller
 
@@ -16,6 +14,11 @@ bills_bp.add_url_rule(
     '/<int:account_id>/<int:app_id>',
     view_func=bills_controller.update,
     methods=['PUT']
+)
+bills_bp.add_url_rule(
+    '/<int:account_id>/<int:app_id>',
+    view_func=bills_controller.patch,
+    methods=['PATCH']
 )
 bills_bp.add_url_rule(
     '/<int:account_id>/<int:app_id>',

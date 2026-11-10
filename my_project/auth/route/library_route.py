@@ -1,5 +1,3 @@
-"""Routes for the library table (composite PK)."""
-
 from flask import Blueprint
 from my_project.auth.controller import library_controller
 
@@ -16,6 +14,11 @@ library_bp.add_url_rule(
     '/<int:app_id>/<int:account_id>',
     view_func=library_controller.update,
     methods=['PUT']
+)
+library_bp.add_url_rule(
+    '/<int:app_id>/<int:account_id>',
+    view_func=library_controller.patch,
+    methods=['PATCH']
 )
 library_bp.add_url_rule(
     '/<int:app_id>/<int:account_id>',

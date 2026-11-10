@@ -1,4 +1,3 @@
-"""Entry point for the Flask application."""
 from my_project import create_app
 
 app = create_app()

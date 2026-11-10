@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/library/1/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "app_data": {
+        "theme": "dark"
+      },
+      "last_opened_at": "2023-06-01T12:00:00"
+    }
+order: 4000

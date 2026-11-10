@@ -1,4 +1,3 @@
-"""Core application package. Creates and configures the Flask app."""
 import os
 import yaml
 from flask import Flask
@@ -7,30 +6,23 @@ from flask_sqlalchemy import SQLAlchemy
 # Declare db at module level BEFORE create_app
 db = SQLAlchemy()
 
-
 def create_app():
-    """Factory function that creates and configures the Flask application."""
     app = Flask(__name__)
 
-    # Build absolute path to config/app.yml
-    # Current file is my_project/__init__.py, go up one level to get project root
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     config_path = os.path.join(project_root, 'config', 'app.yml')
 
-    # Read configuration from YAML
     with open(config_path, 'r') as config_file:
         config = yaml.safe_load(config_file)
 
     db_cfg = config['db']
 
-    # Build SQLAlchemy database URI
     app.config['SQLALCHEMY_DATABASE_URI'] = (
         f"mysql+pymysql://{db_cfg['user']}:{db_cfg['password']}"
         f"@{db_cfg['host']}:{db_cfg['port']}/{db_cfg['name']}"
     )
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Initialize SQLAlchemy with the app
     db.init_app(app)
 
     # Import and register blueprints INSIDE create_app to avoid circular imports
@@ -64,7 +56,6 @@ def create_app():
     app.register_blueprint(bills_bp)
     app.register_blueprint(library_bp)
 
-    # Register centralized error handlers
     from my_project.utils.errors import register_error_handlers
     register_error_handlers(app)
 

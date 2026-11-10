@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/installations"
+method: GET
+order: 1000

@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/apps_discounts"
+method: GET
+order: 1000

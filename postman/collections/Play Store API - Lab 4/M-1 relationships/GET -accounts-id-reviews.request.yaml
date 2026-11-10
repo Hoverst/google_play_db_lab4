@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /accounts/:id/reviews
+url: "{{baseUrl}}/accounts/1/reviews"
+method: GET
+order: 3000

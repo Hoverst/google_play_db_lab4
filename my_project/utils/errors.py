@@ -1,10 +1,7 @@
-"""Centralized error handling for the Flask application."""
 from flask import jsonify
 from sqlalchemy.exc import IntegrityError
 
-
 def register_error_handlers(app):
-    """Register global error handlers that return JSON responses."""
 
     @app.errorhandler(400)
     def bad_request(e):

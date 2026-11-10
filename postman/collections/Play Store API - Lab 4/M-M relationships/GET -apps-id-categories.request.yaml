@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /apps/:id/categories
+url: "{{baseUrl}}/apps/1/categories"
+method: GET
+order: 3000

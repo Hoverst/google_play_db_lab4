@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/devices/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "model": "Pixel 7",
+      "os_version": "14"
+    }
+order: 4000

@@ -1,0 +1,4 @@
+$kind: collection
+description: Flask + MySQL CRUD and relationship endpoints for play_store.
+variables:
+  baseUrl: ""

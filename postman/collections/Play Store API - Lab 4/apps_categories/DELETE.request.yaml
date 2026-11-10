@@ -1,0 +1,4 @@
+$kind: http-request
+url: "{{baseUrl}}/apps_categories/1/1"
+method: DELETE
+order: 5000

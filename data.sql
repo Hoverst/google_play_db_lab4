@@ -1,24 +1,9 @@
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
-
-CREATE SCHEMA IF NOT EXISTS `play_store` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
-USE `play_store` ;
-
-DROP TABLE IF EXISTS `play_store`.`library`;
-DROP TABLE IF EXISTS `play_store`.`bills`;
-DROP TABLE IF EXISTS `play_store`.`reviews`;
-DROP TABLE IF EXISTS `play_store`.`payment_cards`;
-DROP TABLE IF EXISTS `play_store`.`apps_categories`;
-DROP TABLE IF EXISTS `play_store`.`categories`;
-DROP TABLE IF EXISTS `play_store`.`apps_discounts`;
-DROP TABLE IF EXISTS `play_store`.`apps_versions`;
-DROP TABLE IF EXISTS `play_store`.`installations`;
-DROP TABLE IF EXISTS `play_store`.`apps`;
-DROP TABLE IF EXISTS `play_store`.`companies`;
-DROP TABLE IF EXISTS `play_store`.`accounts_devices`;
-DROP TABLE IF EXISTS `play_store`.`devices`;
-DROP TABLE IF EXISTS `play_store`.`accounts`;
+DROP SCHEMA IF EXISTS `play_store`;
+CREATE SCHEMA `play_store` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `play_store`;
 
 CREATE TABLE IF NOT EXISTS `play_store`.`accounts` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -27,7 +12,7 @@ CREATE TABLE IF NOT EXISTS `play_store`.`accounts` (
   `name` VARCHAR(70) NOT NULL,
   `is_developer` TINYINT UNSIGNED NOT NULL DEFAULT 0,
   `country` VARCHAR(70) NOT NULL,
-  `created_at` DATETIME NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
   INDEX `name` (`name` ASC) VISIBLE)
@@ -92,7 +77,7 @@ ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `play_store`.`installations` (
   `app_id` INT UNSIGNED NOT NULL,
   `device_id` INT UNSIGNED NOT NULL,
-  `installed_at` DATETIME NOT NULL,
+  `installed_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`app_id`, `device_id`),
   INDEX `installations_device_id_idx` (`device_id` ASC) VISIBLE,
   CONSTRAINT `installations_app_id`
@@ -112,7 +97,7 @@ CREATE TABLE IF NOT EXISTS `play_store`.`apps_versions` (
   `app_id` INT UNSIGNED NOT NULL,
   `version` VARCHAR(20) NOT NULL,
   `size_bytes` BIGINT UNSIGNED NOT NULL,
-  `created_at` DATETIME NOT NULL,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `app_versions_app_id_version` (`app_id` ASC, `version` ASC) VISIBLE,
   CONSTRAINT `app_versions_apps_id`
@@ -126,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `play_store`.`apps_discounts` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `app_id` INT UNSIGNED NOT NULL,
   `discount_price` DECIMAL(10,2) NOT NULL,
-  `starts_at` DATETIME NOT NULL,
+  `starts_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ends_at` DATETIME NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `app_discounts_apps_id_idx` (`app_id` ASC) VISIBLE,
@@ -208,7 +193,7 @@ CREATE TABLE IF NOT EXISTS `play_store`.`bills` (
   `amount_paid` DECIMAL(10,2) NOT NULL,
   `app_id` INT UNSIGNED NOT NULL,
   `payment_card_id` INT UNSIGNED NOT NULL,
-  `paid_at` DATETIME NOT NULL,
+  `paid_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `discount_id` INT UNSIGNED NULL DEFAULT NULL,
   `account_id` INT UNSIGNED NOT NULL,
   INDEX `bills_app_id_apps_id_fk_idx` (`app_id` ASC) VISIBLE,
@@ -255,7 +240,6 @@ CREATE TABLE IF NOT EXISTS `play_store`.`library` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
-
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

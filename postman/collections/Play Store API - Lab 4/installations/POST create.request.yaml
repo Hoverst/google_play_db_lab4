@@ -1,0 +1,14 @@
+$kind: http-request
+url: "{{baseUrl}}/installations"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "app_id": 1,
+      "device_id": 1,
+      "installed_at": "2026-01-01T12:00:00"
+    }
+order: 3000

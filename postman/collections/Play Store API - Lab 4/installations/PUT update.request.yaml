@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/installations/1/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "installed_at": "2023-05-01T10:00:00"
+    }
+order: 4000

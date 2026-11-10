@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/companies/1"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "contact_email": "new@example.com"
+    }
+order: 4000

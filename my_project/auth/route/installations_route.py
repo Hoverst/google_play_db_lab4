@@ -1,5 +1,3 @@
-"""Routes for the installations table (composite PK)."""
-
 from flask import Blueprint
 from my_project.auth.controller import installations_controller
 
@@ -16,6 +14,11 @@ installations_bp.add_url_rule(
     '/<int:app_id>/<int:device_id>',
     view_func=installations_controller.update,
     methods=['PUT']
+)
+installations_bp.add_url_rule(
+    '/<int:app_id>/<int:device_id>',
+    view_func=installations_controller.patch,
+    methods=['PATCH']
 )
 installations_bp.add_url_rule(
     '/<int:app_id>/<int:device_id>',

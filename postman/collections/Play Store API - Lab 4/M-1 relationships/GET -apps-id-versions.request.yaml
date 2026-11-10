@@ -1,0 +1,5 @@
+$kind: http-request
+name: GET /apps/:id/versions
+url: "{{baseUrl}}/apps/1/versions"
+method: GET
+order: 7000

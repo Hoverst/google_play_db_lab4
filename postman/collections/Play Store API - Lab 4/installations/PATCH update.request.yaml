@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/installations/1/1"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "installed_at": "2026-02-01T12:00:00"
+    }
+order: 4000

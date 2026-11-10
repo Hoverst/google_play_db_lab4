@@ -1,0 +1,16 @@
+$kind: http-request
+url: "{{baseUrl}}/apps/1"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "title": "Pixel Runner",
+      "caption": "Endless runner with retro pixel graphics",
+      "price": 0.0,
+      "currency": "USD",
+      "company_id": 1
+    }
+order: 4000

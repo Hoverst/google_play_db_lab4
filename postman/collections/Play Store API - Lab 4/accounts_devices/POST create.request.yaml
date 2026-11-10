@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/accounts_devices"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "account_id": 1,
+      "device_id": 1
+    }
+order: 3000

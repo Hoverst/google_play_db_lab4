@@ -1,10 +1,6 @@
-# library.py - SQLAlchemy model for the 'library' table
-
 from my_project import db
 
-
 class Library(db.Model):
-    """Represents a library entry (owned app) for an account in the play_store database."""
 
     __tablename__ = 'library'
     __table_args__ = (
@@ -16,12 +12,10 @@ class Library(db.Model):
     app_data = db.Column(db.JSON, nullable=True)
     last_opened_at = db.Column(db.DateTime, nullable=True)
 
-    # Relationships
     app = db.relationship('App', back_populates='library_entries', lazy='select')
     account = db.relationship('Account', back_populates='library_entries', lazy='select')
 
     def to_dict(self):
-        """Convert all columns to a JSON-safe dictionary."""
         return {
             'app_id': self.app_id,
             'account_id': self.account_id,

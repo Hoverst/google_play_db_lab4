@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/bills/1/1"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "amount_paid": 2.99
+    }
+order: 4000

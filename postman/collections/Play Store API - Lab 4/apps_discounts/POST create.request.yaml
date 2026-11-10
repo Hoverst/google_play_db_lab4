@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/apps_discounts"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "app_id": 1,
+      "discount_price": 1.99,
+      "starts_at": "2026-01-01T00:00:00",
+      "ends_at": "2026-01-31T23:59:59"
+    }
+order: 3000

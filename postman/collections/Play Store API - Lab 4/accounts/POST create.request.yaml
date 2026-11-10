@@ -1,0 +1,17 @@
+$kind: http-request
+url: "{{baseUrl}}/accounts"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "email": "new.user@example.com",
+      "password_hash": "hash_placeholder",
+      "name": "New User",
+      "is_developer": 0,
+      "country": "USA",
+      "created_at": "2026-01-01T12:00:00"
+    }
+order: 3000

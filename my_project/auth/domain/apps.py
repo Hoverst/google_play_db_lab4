@@ -1,10 +1,6 @@
-# apps.py - SQLAlchemy model for the 'apps' table
-
 from my_project import db
 
-
 class App(db.Model):
-    """Represents an application in the play_store database."""
 
     __tablename__ = 'apps'
 
@@ -15,7 +11,6 @@ class App(db.Model):
     currency = db.Column(db.String(3), nullable=False, default='USD')
     company_id = db.Column(db.Integer, db.ForeignKey('companies.id'), nullable=False)
 
-    # Relationships
     company = db.relationship('Company', back_populates='apps', lazy='select')
     categories = db.relationship('Category', secondary='apps_categories', back_populates='apps', lazy='select')
     versions = db.relationship('AppVersion', back_populates='app', lazy='select')
@@ -26,7 +21,6 @@ class App(db.Model):
     library_entries = db.relationship('Library', back_populates='app', lazy='select')
 
     def to_dict(self):
-        """Convert all columns to a JSON-safe dictionary."""
         return {
             'id': self.id,
             'title': self.title,

@@ -1,0 +1,12 @@
+$kind: http-request
+url: "{{baseUrl}}/apps_discounts/1"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "discount_price": 0.99
+    }
+order: 4000

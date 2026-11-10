@@ -1,6 +1,6 @@
 db:
   user: root
-  password: your_password
-  host: localhost
+  password: "your_password"
+  host: 127.0.0.1
   port: 3306
   name: play_store

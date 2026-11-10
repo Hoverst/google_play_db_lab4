@@ -1,0 +1,10 @@
+$kind: http-request
+url: "{{baseUrl}}/accounts_devices/1/1"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {}
+order: 4000

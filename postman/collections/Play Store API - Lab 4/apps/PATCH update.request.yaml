@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/apps/1"
+method: PATCH
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "price": 2.99,
+      "caption": "Updated caption"
+    }
+order: 4000

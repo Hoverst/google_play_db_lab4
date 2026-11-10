@@ -1,0 +1,13 @@
+$kind: http-request
+url: "{{baseUrl}}/devices"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "model": "Pixel 8",
+      "os_version": "Android 14"
+    }
+order: 3000
