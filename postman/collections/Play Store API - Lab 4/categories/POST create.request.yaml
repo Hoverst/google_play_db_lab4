@@ -1,10 +1,11 @@
 $kind: http-request
-url: "{{baseUrl}}/categories"
+description: "Create a category. Required: name (max 45 chars, unique)."
+url: "{{base_url}}/categories"
 method: POST
 headers:
   Content-Type: application/json
 body:
-  type: text
+  type: json
   content: |-
     {
       "name": "Productivity"

@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/devices/1"
+description: Fetch one device by id.
+url: "{{base_url}}/devices/:device_id"
 method: GET
+pathVariables:
+  device_id: "1"
 order: 2000

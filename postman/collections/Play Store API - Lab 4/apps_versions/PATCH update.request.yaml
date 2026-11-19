@@ -1,13 +1,16 @@
 $kind: http-request
-url: "{{baseUrl}}/apps_versions/1"
+description: "Partial update. At least one of: app_id, version, size_bytes."
+url: "{{base_url}}/apps_versions/:version_id"
 method: PATCH
 headers:
   Content-Type: application/json
+pathVariables:
+  version_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "version": "1.0.1",
-      "size_bytes": 1100000
+      "version": "1.1.1",
+      "size_bytes": 17000000
     }
-order: 4000
+order: 5000

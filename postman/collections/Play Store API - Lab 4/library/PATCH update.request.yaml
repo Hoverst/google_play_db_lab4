@@ -1,12 +1,15 @@
 $kind: http-request
-url: "{{baseUrl}}/library/1/1"
+description: "Partial update. At least one of: account_id, app_id, last_opened_at, data_ref."
+url: "{{base_url}}/library/:entry_id"
 method: PATCH
 headers:
   Content-Type: application/json
+pathVariables:
+  entry_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
       "last_opened_at": "2026-03-01T12:00:00"
     }
-order: 4000
+order: 5000

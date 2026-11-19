@@ -1,15 +1,18 @@
 $kind: http-request
-url: "{{baseUrl}}/library/1/1"
+description: "Full update. Required: account_id, app_id, last_opened_at, data_ref."
+url: "{{base_url}}/library/:entry_id"
 method: PUT
 headers:
   Content-Type: application/json
+pathVariables:
+  entry_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "app_data": {
-        "theme": "dark"
-      },
-      "last_opened_at": "2023-06-01T12:00:00"
+      "account_id": 1,
+      "app_id": 1,
+      "last_opened_at": "2026-03-01T12:00:00",
+      "data_ref": "cloud://backup/1/1"
     }
 order: 4000

@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/library/1/1"
+description: Delete a library entry. Returns 204 No Content.
+url: "{{base_url}}/library/:entry_id"
 method: DELETE
-order: 5000
+pathVariables:
+  entry_id: "1"
+order: 6000

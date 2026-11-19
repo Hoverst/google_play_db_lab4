@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/apps/1"
+description: Fetch one app by id.
+url: "{{base_url}}/apps/:app_id"
 method: GET
+pathVariables:
+  app_id: "1"
 order: 2000

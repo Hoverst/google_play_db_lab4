@@ -1,12 +1,16 @@
 $kind: http-request
-url: "{{baseUrl}}/installations/1/1"
+description: "Full update. Required: device_id, app_version_id."
+url: "{{base_url}}/installations/:installation_id"
 method: PUT
 headers:
   Content-Type: application/json
+pathVariables:
+  installation_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "installed_at": "2023-05-01T10:00:00"
+      "device_id": 1,
+      "app_version_id": 2
     }
 order: 4000

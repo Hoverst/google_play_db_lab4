@@ -1,2 +1,3 @@
 $kind: collection
-order: 14000
+description: Library entry CRUD. (account_id, app_id) is unique.
+order: 8000

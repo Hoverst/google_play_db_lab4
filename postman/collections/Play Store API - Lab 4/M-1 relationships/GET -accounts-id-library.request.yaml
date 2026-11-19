@@ -1,5 +1,8 @@
 $kind: http-request
 name: GET /accounts/:id/library
-url: "{{baseUrl}}/accounts/1/library"
+description: Library entries of an account.
+url: "{{base_url}}/accounts/:account_id/library"
 method: GET
-order: 5000
+pathVariables:
+  account_id: "1"
+order: 2000

@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/companies/1"
+description: Fetch one company by id.
+url: "{{base_url}}/companies/:company_id"
 method: GET
+pathVariables:
+  company_id: "1"
 order: 2000

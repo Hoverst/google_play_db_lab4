@@ -1,2 +1,3 @@
 $kind: collection
-order: 6000
+description: Installation CRUD. (device_id, app_version_id) is unique.
+order: 7000

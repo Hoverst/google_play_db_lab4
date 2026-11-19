@@ -1,2 +1,3 @@
 $kind: collection
+description: App CRUD. status is one of published | unpublished | suspended (defaults to published).
 order: 5000

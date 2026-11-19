@@ -1,17 +1,16 @@
 $kind: http-request
-url: "{{baseUrl}}/library"
+description: "Create a library entry. Required: account_id, app_id. Optional: last_opened_at (ISO 8601), data_ref."
+url: "{{base_url}}/library"
 method: POST
 headers:
   Content-Type: application/json
 body:
-  type: text
+  type: json
   content: |-
     {
-      "app_id": 1,
       "account_id": 1,
-      "app_data": {
-        "theme": "dark"
-      },
-      "last_opened_at": "2026-01-01T12:00:00"
+      "app_id": 1,
+      "last_opened_at": "2026-01-01T12:00:00",
+      "data_ref": "cloud://backup/1/1"
     }
 order: 3000

@@ -1,16 +1,17 @@
 $kind: http-request
-url: "{{baseUrl}}/accounts/1"
+description: "Full update. All writable fields required: email, password, name."
+url: "{{base_url}}/accounts/:account_id"
 method: PUT
 headers:
   Content-Type: application/json
+pathVariables:
+  account_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "email": "oleksandr.melnyk@example.com",
-      "password_hash": "keep_or_replace_hash",
-      "name": "Oleksandr Melnyk",
-      "is_developer": 0,
-      "country": "Ukraine"
+      "email": "olena.kovalenko@example.com",
+      "password": "demo_password_1",
+      "name": "Olena Kovalenko"
     }
 order: 4000

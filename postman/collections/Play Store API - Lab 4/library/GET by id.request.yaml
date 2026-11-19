@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/library/1/1"
+description: Fetch one library entry by id.
+url: "{{base_url}}/library/:entry_id"
 method: GET
+pathVariables:
+  entry_id: "1"
 order: 2000

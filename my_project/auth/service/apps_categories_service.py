@@ -1,34 +1,43 @@
 from flask import abort
-from my_project.auth.dao import apps_categories_dao
-from my_project.utils.resource_update import prepare_update
+from sqlalchemy.exc import IntegrityError
+from my_project.auth.dao import apps_dao, categories_dao, apps_categories_dao
 
-def get_all():
-    return [instance.to_dict() for instance in apps_categories_dao.find_all()]
 
-def get_by_id(app_id, category_id):
-    instance = apps_categories_dao.find_by_id(app_id, category_id)
-    if instance is None:
+def list_categories(app_id):
+    app = apps_dao.find_by_id(app_id)
+    if app is None:
         abort(404)
-    return instance.to_dict()
+    return [c.to_dict() for c in app.categories]
 
-def create(data):
-    required_fields = ['app_id', 'category_id']
-    for field in required_fields:
-        if field not in data:
-            abort(400, description=f"Missing required field: {field}")
-    instance = apps_categories_dao.create(data)
-    return instance.to_dict()
 
-def update(app_id, category_id, data, partial=False):
-    instance = apps_categories_dao.find_by_id(app_id, category_id)
-    if instance is None:
+def list_apps(category_id):
+    category = categories_dao.find_by_id(category_id)
+    if category is None:
         abort(404)
-    clean = prepare_update('apps_categories', data, partial=partial)
-    instance = apps_categories_dao.update(instance, clean)
-    return instance.to_dict()
+    return [a.to_dict() for a in category.apps]
 
-def delete(app_id, category_id):
-    instance = apps_categories_dao.find_by_id(app_id, category_id)
-    if instance is None:
+
+def attach(app_id, category_id):
+    app = apps_dao.find_by_id(app_id)
+    if app is None:
         abort(404)
-    apps_categories_dao.delete(instance)
+    category = categories_dao.find_by_id(category_id)
+    if category is None:
+        abort(404)
+    if apps_categories_dao.find_link(app_id, category_id) is not None:
+        abort(409, description="App already linked to this category")
+    try:
+        link = apps_categories_dao.create_link(app_id, category_id)
+    except IntegrityError:
+        abort(409, description="App already linked to this category")
+    return link.to_dict()
+
+
+def detach(app_id, category_id):
+    app = apps_dao.find_by_id(app_id)
+    if app is None:
+        abort(404)
+    link = apps_categories_dao.find_link(app_id, category_id)
+    if link is None:
+        abort(404)
+    apps_categories_dao.delete_link(link)

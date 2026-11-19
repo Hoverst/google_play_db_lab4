@@ -1,0 +1,2200 @@
+{
+  "info": {
+    "name": "Play Store API - Lab 4",
+    "description": "Flask + MySQL REST API for the `play_store` schema (Google Play-like store).\n\nStack: Route -> Controller -> DTO (validation) -> Service -> DAO -> MySQL.\n\nResources: accounts (soft delete), devices, accounts_devices (M:N), companies, apps, categories, apps_categories (M:N), apps_versions, installations, library, reviews.\n\nConventions: GET list, GET by id, POST (201), PUT (full update), PATCH (partial), DELETE (204). JSON bodies use Content-Type: application/json. Unknown or missing fields return 400; missing rows return 404.\n\nSoft deletion:\n- DELETE /accounts/:id sets `deleted_at` (soft delete); the account is excluded from GET /accounts and returns 404 afterwards. All apps owned by that developer's company are unpublished (suspended apps keep their moderation state).\n- DELETE /apps/:id hard-deletes (204) when the app has no versions, library entries, or reviews; otherwise it soft-deletes by setting status='unpublished' and returns 200 with the app JSON. Repeating is idempotent and never downgrades a suspended app.\n\nTests: the DELETE requests for accounts and apps contain Postman test scripts (and saved example responses) that verify these semantics.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "accounts",
+      "description": "Account CRUD. Accounts are soft-deleted: DELETE sets deleted_at, the row is kept, soft-deleted accounts vanish from GET /accounts and return 404 on GET /accounts/:id. Deleting a developer account also unpublishes every app owned by that developer's company (apps already 'suspended' keep their moderation state). Responses never include the password hash.",
+      "item": [
+        {
+          "name": "GET all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts"
+              ]
+            },
+            "description": "List all active accounts."
+          }
+        },
+        {
+          "name": "GET by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/:account_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                ":account_id"
+              ],
+              "variable": [
+                {
+                  "key": "account_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Fetch one account by id (404 if missing or soft-deleted)."
+          }
+        },
+        {
+          "name": "POST create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/accounts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"new.user@example.com\",\n  \"password\": \"demo_password_4\",\n  \"name\": \"New User\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create an account. Required: email, password (min 8 chars), name."
+          }
+        },
+        {
+          "name": "PUT update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/accounts/:account_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                ":account_id"
+              ],
+              "variable": [
+                {
+                  "key": "account_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"olena.kovalenko@example.com\",\n  \"password\": \"demo_password_1\",\n  \"name\": \"Olena Kovalenko\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Full update. All writable fields required: email, password, name."
+          }
+        },
+        {
+          "name": "PATCH update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/accounts/:account_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                ":account_id"
+              ],
+              "variable": [
+                {
+                  "key": "account_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Olena K.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partial update. At least one of: email, password, name."
+          }
+        },
+        {
+          "name": "DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/:account_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                ":account_id"
+              ],
+              "variable": [
+                {
+                  "key": "account_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Soft-delete a developer account. The account row is kept and `deleted_at` is set; the account then returns 404 and is excluded from GET /accounts. Every app owned by the developer's company is unpublished (status='unpublished'); apps already 'suspended' keep that state and are never downgraded. Existing versions, library entries, and reviews stay intact. Returns 204 No Content.\n\nTests: asserts 204, verifies GET /accounts/:id returns 404, and verifies the developer's apps are no longer 'published'."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get(\"base_url\");",
+                  "const accountId = (pm.request.url.variables && pm.request.url.variables.get(\"accountId\")) || pm.request.url.path.slice(-1)[0];",
+                  "pm.collectionVariables.unset(\"_developer_apps_before_delete\");",
+                  "if (accountId) {",
+                  "    pm.sendRequest({ url: baseUrl + \"/accounts/\" + accountId + \"/companies\", method: \"GET\" }, function (err, res) {",
+                  "        if (err || res.code !== 200) { return; }",
+                  "        const companies = res.json();",
+                  "        if (!Array.isArray(companies) || companies.length === 0) { return; }",
+                  "        pm.sendRequest({ url: baseUrl + \"/companies/\" + companies[0].id + \"/apps\", method: \"GET\" }, function (err2, res2) {",
+                  "            if (err2 || res2.code !== 200) { return; }",
+                  "            pm.collectionVariables.set(\"_developer_apps_before_delete\", JSON.stringify(res2.json()));",
+                  "        });",
+                  "    });",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get(\"base_url\");",
+                  "const accountId = (pm.request.url.variables && pm.request.url.variables.get(\"accountId\")) || pm.request.url.path.slice(-1)[0];",
+                  "",
+                  "pm.test(\"204 No Content\", function () { pm.response.to.have.status(204); });",
+                  "",
+                  "pm.test(\"Account is soft-deleted: GET returns 404\", function (done) {",
+                  "    pm.sendRequest({ url: baseUrl + \"/accounts/\" + accountId, method: \"GET\" }, function (err, res) {",
+                  "        pm.expect(err).to.be.null;",
+                  "        pm.expect(res.code).to.eql(404);",
+                  "        done();",
+                  "    });",
+                  "});",
+                  "",
+                  "const appsBefore = pm.collectionVariables.get(\"_developer_apps_before_delete\");",
+                  "pm.test(\"Developer apps are unpublished after account deletion\", function (done) {",
+                  "    if (!appsBefore) { done(); return; }",
+                  "    const expected = JSON.parse(appsBefore);",
+                  "    pm.sendRequest({ url: baseUrl + \"/apps\", method: \"GET\" }, function (err, res) {",
+                  "        pm.expect(err).to.be.null;",
+                  "        pm.expect(res.code).to.eql(200);",
+                  "        const byId = {};",
+                  "        res.json().forEach(function (app) { byId[app.id] = app; });",
+                  "        expected.forEach(function (app) {",
+                  "            if (byId[app.id]) {",
+                  "                pm.expect(byId[app.id].status).to.not.eql(\"published\");",
+                  "            }",
+                  "        });",
+                  "        done();",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "204 - soft-deleted",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/accounts/:account_id",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "accounts",
+                    ":account_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "account_id",
+                      "value": "1",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "devices",
+      "description": "Device CRUD.",
+      "item": [
+        {
+          "name": "GET all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/devices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            },
+            "description": "List all devices."
+          }
+        },
+        {
+          "name": "GET by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/devices/:device_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices",
+                ":device_id"
+              ],
+              "variable": [
+                {
+                  "key": "device_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Fetch one device by id."
+          }
+        },
+        {
+          "name": "POST create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/devices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"Pixel 9\",\n  \"os_version\": \"Android 15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a device. Required: model, os_version."
+          }
+        },
+        {
+          "name": "PUT update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/devices/:device_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices",
+                ":device_id"
+              ],
+              "variable": [
+                {
+                  "key": "device_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"model\": \"Pixel 7\",\n  \"os_version\": \"Android 15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Full update. Required: model, os_version."
+          }
+        },
+        {
+          "name": "PATCH update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/devices/:device_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices",
+                ":device_id"
+              ],
+              "variable": [
+                {
+                  "key": "device_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"os_version\": \"Android 15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partial update. At least one of: model, os_version."
+          }
+        },
+        {
+          "name": "DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/devices/:device_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices",
+                ":device_id"
+              ],
+              "variable": [
+                {
+                  "key": "device_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Delete a device. Returns 204 No Content."
+          }
+        }
+      ]
+    },
+    {
+      "name": "companies",
+      "description": "Company CRUD. developer_id references accounts.id (1:1 with an account).",
+      "item": [
+        {
+          "name": "GET all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/companies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "description": "List all companies."
+          }
+        },
+        {
+          "name": "GET by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/companies/:company_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies",
+                ":company_id"
+              ],
+              "variable": [
+                {
+                  "key": "company_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Fetch one company by id."
+          }
+        },
+        {
+          "name": "POST create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company_name\": \"Example Soft\",\n  \"contact_email\": \"dev@example.com\",\n  \"developer_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a company. Required: company_name, developer_id. contact_email is optional and may be null."
+          }
+        },
+        {
+          "name": "PUT update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/:company_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies",
+                ":company_id"
+              ],
+              "variable": [
+                {
+                  "key": "company_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"company_name\": \"Nova Labs\",\n  \"contact_email\": \"support@novalabs.example.com\",\n  \"developer_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Full update. Required: company_name, contact_email, developer_id."
+          }
+        },
+        {
+          "name": "PATCH update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/companies/:company_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies",
+                ":company_id"
+              ],
+              "variable": [
+                {
+                  "key": "company_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contact_email\": \"new@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partial update. At least one of: company_name, contact_email, developer_id."
+          }
+        },
+        {
+          "name": "DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/companies/:company_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies",
+                ":company_id"
+              ],
+              "variable": [
+                {
+                  "key": "company_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Delete a company. Returns 204 No Content."
+          }
+        }
+      ]
+    },
+    {
+      "name": "categories",
+      "description": "Category CRUD.",
+      "item": [
+        {
+          "name": "GET all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            },
+            "description": "List all categories."
+          }
+        },
+        {
+          "name": "GET by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/:category_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories",
+                ":category_id"
+              ],
+              "variable": [
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Fetch one category by id."
+          }
+        },
+        {
+          "name": "POST create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Productivity\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a category. Required: name (max 45 chars, unique)."
+          }
+        },
+        {
+          "name": "PUT update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/categories/:category_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories",
+                ":category_id"
+              ],
+              "variable": [
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Games\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Full update. Required: name."
+          }
+        },
+        {
+          "name": "PATCH update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/categories/:category_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories",
+                ":category_id"
+              ],
+              "variable": [
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Tools\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partial update. Required: name."
+          }
+        },
+        {
+          "name": "DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/:category_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories",
+                ":category_id"
+              ],
+              "variable": [
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Delete a category. Returns 204 No Content."
+          }
+        }
+      ]
+    },
+    {
+      "name": "apps",
+      "description": "App CRUD. status is one of published | unpublished | suspended (defaults to published). DELETE soft-deletes apps that still have versions/library entries/reviews (status='unpublished', 200) and hard-deletes apps without dependents (204).",
+      "item": [
+        {
+          "name": "GET all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps"
+              ]
+            },
+            "description": "List all apps."
+          }
+        },
+        {
+          "name": "GET by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps/:app_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps",
+                ":app_id"
+              ],
+              "variable": [
+                {
+                  "key": "app_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Fetch one app by id."
+          }
+        },
+        {
+          "name": "POST create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/apps",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Example App\",\n  \"package_name\": \"com.example.app\",\n  \"caption\": \"A sample application\",\n  \"company_id\": 1,\n  \"status\": \"published\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create an app. Required: title, package_name, company_id. Optional: caption, status."
+          }
+        },
+        {
+          "name": "PUT update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/apps/:app_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps",
+                ":app_id"
+              ],
+              "variable": [
+                {
+                  "key": "app_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Nova Notes\",\n  \"package_name\": \"com.novalabs.notes\",\n  \"caption\": \"Fast notes and syncing\",\n  \"company_id\": 1,\n  \"status\": \"published\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Full update. Required: title, package_name, caption, company_id, status."
+          }
+        },
+        {
+          "name": "PATCH update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/apps/:app_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps",
+                ":app_id"
+              ],
+              "variable": [
+                {
+                  "key": "app_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"caption\": \"Updated caption\",\n  \"status\": \"unpublished\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partial update. At least one of: title, package_name, caption, company_id, status."
+          }
+        },
+        {
+          "name": "DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps/:app_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps",
+                ":app_id"
+              ],
+              "variable": [
+                {
+                  "key": "app_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Delete an app.\n\n- **No versions, library entries, or reviews** -> hard delete (row removed), **204 No Content**.\n- **Has dependents** -> soft delete: `status` becomes `unpublished`, the row is kept, **200 OK** with the updated app JSON (same shape as GET /apps/:id).\n- Repeated DELETE while unpublished/suspended is idempotent: **200** with the current JSON. A `suspended` app is never downgraded to `unpublished`.\n- Existing versions, library entries, and reviews stay intact and readable after a soft delete.\n\nTests: accepts 200 or 204, asserts the app is not published afterwards (GET returns 404 or status unpublished/suspended)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const baseUrl = pm.collectionVariables.get(\"base_url\");",
+                  "const appId = (pm.request.url.variables && pm.request.url.variables.get(\"appId\")) || pm.request.url.path.slice(-1)[0];",
+                  "",
+                  "pm.test(\"200 (soft delete) or 204 (hard delete)\", function () {",
+                  "    pm.expect([200, 204]).to.include(pm.response.code);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Soft-deleted app is no longer published\", function () {",
+                  "        const body = pm.response.json();",
+                  "        pm.expect([\"unpublished\", \"suspended\"]).to.include(body.status);",
+                  "    });",
+                  "}",
+                  "",
+                  "pm.test(\"App is no longer published (GET)\", function (done) {",
+                  "    pm.sendRequest({ url: baseUrl + \"/apps/\" + appId, method: \"GET\" }, function (err, res) {",
+                  "        pm.expect(err).to.be.null;",
+                  "        if (res.code === 404) { done(); return; }",
+                  "        pm.expect(res.code).to.eql(200);",
+                  "        pm.expect([\"unpublished\", \"suspended\"]).to.include(res.json().status);",
+                  "        done();",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "response": [
+            {
+              "name": "200 - soft-deleted (app has dependents)",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/apps/:app_id",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "apps",
+                    ":app_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "app_id",
+                      "value": "1",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 1,\n  \"title\": \"Nova Notes\",\n  \"package_name\": \"com.novalabs.notes\",\n  \"caption\": \"Fast notes and syncing\",\n  \"company_id\": 1,\n  \"status\": \"unpublished\"\n}"
+            },
+            {
+              "name": "204 - hard-deleted (app has no dependents)",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/apps/:app_id",
+                  "host": [
+                    "{{base_url}}"
+                  ],
+                  "path": [
+                    "apps",
+                    ":app_id"
+                  ],
+                  "variable": [
+                    {
+                      "key": "app_id",
+                      "value": "1",
+                      "type": "string"
+                    }
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "_postman_previewlanguage": "json",
+              "header": [],
+              "cookie": [],
+              "body": ""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "apps_versions",
+      "description": "App version CRUD. (app_id, version) is unique; size_bytes is a BIGINT UNSIGNED.",
+      "item": [
+        {
+          "name": "GET all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps_versions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps_versions"
+              ]
+            },
+            "description": "List all app versions."
+          }
+        },
+        {
+          "name": "GET by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps_versions/:version_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps_versions",
+                ":version_id"
+              ],
+              "variable": [
+                {
+                  "key": "version_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Fetch one app version by id."
+          }
+        },
+        {
+          "name": "POST create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/apps_versions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps_versions"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"app_id\": 1,\n  \"version\": \"1.2.0\",\n  \"size_bytes\": 17825792\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a version. Required: app_id, version, size_bytes."
+          }
+        },
+        {
+          "name": "PUT update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/apps_versions/:version_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps_versions",
+                ":version_id"
+              ],
+              "variable": [
+                {
+                  "key": "version_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"app_id\": 1,\n  \"version\": \"1.0.0\",\n  \"size_bytes\": 15728640\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Full update. Required: app_id, version, size_bytes."
+          }
+        },
+        {
+          "name": "PATCH update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/apps_versions/:version_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps_versions",
+                ":version_id"
+              ],
+              "variable": [
+                {
+                  "key": "version_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"version\": \"1.1.1\",\n  \"size_bytes\": 17000000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partial update. At least one of: app_id, version, size_bytes."
+          }
+        },
+        {
+          "name": "DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps_versions/:version_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps_versions",
+                ":version_id"
+              ],
+              "variable": [
+                {
+                  "key": "version_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Delete an app version. Returns 204 No Content."
+          }
+        }
+      ]
+    },
+    {
+      "name": "installations",
+      "description": "Installation CRUD. (device_id, app_version_id) is unique.",
+      "item": [
+        {
+          "name": "GET all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/installations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "installations"
+              ]
+            },
+            "description": "List all installations."
+          }
+        },
+        {
+          "name": "GET by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/installations/:installation_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "installations",
+                ":installation_id"
+              ],
+              "variable": [
+                {
+                  "key": "installation_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Fetch one installation by id."
+          }
+        },
+        {
+          "name": "POST create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/installations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "installations"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": 1,\n  \"app_version_id\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create an installation. Required: device_id, app_version_id."
+          }
+        },
+        {
+          "name": "PUT update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/installations/:installation_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "installations",
+                ":installation_id"
+              ],
+              "variable": [
+                {
+                  "key": "installation_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"device_id\": 1,\n  \"app_version_id\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Full update. Required: device_id, app_version_id."
+          }
+        },
+        {
+          "name": "PATCH update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/installations/:installation_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "installations",
+                ":installation_id"
+              ],
+              "variable": [
+                {
+                  "key": "installation_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"app_version_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partial update. At least one of: device_id, app_version_id."
+          }
+        },
+        {
+          "name": "DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/installations/:installation_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "installations",
+                ":installation_id"
+              ],
+              "variable": [
+                {
+                  "key": "installation_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Delete an installation. Returns 204 No Content."
+          }
+        }
+      ]
+    },
+    {
+      "name": "library",
+      "description": "Library entry CRUD. (account_id, app_id) is unique.",
+      "item": [
+        {
+          "name": "GET all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/library",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "library"
+              ]
+            },
+            "description": "List all library entries."
+          }
+        },
+        {
+          "name": "GET by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/library/:entry_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "library",
+                ":entry_id"
+              ],
+              "variable": [
+                {
+                  "key": "entry_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Fetch one library entry by id."
+          }
+        },
+        {
+          "name": "POST create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/library",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "library"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"account_id\": 1,\n  \"app_id\": 1,\n  \"last_opened_at\": \"2026-01-01T12:00:00\",\n  \"data_ref\": \"cloud://backup/1/1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a library entry. Required: account_id, app_id. Optional: last_opened_at (ISO 8601), data_ref."
+          }
+        },
+        {
+          "name": "PUT update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/library/:entry_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "library",
+                ":entry_id"
+              ],
+              "variable": [
+                {
+                  "key": "entry_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"account_id\": 1,\n  \"app_id\": 1,\n  \"last_opened_at\": \"2026-03-01T12:00:00\",\n  \"data_ref\": \"cloud://backup/1/1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Full update. Required: account_id, app_id, last_opened_at, data_ref."
+          }
+        },
+        {
+          "name": "PATCH update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/library/:entry_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "library",
+                ":entry_id"
+              ],
+              "variable": [
+                {
+                  "key": "entry_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"last_opened_at\": \"2026-03-01T12:00:00\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partial update. At least one of: account_id, app_id, last_opened_at, data_ref."
+          }
+        },
+        {
+          "name": "DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/library/:entry_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "library",
+                ":entry_id"
+              ],
+              "variable": [
+                {
+                  "key": "entry_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Delete a library entry. Returns 204 No Content."
+          }
+        }
+      ]
+    },
+    {
+      "name": "reviews",
+      "description": "Review CRUD. Review must reference an existing (account_id, app_id) library entry. rating is 0.0-5.0 with at most one decimal digit.",
+      "item": [
+        {
+          "name": "GET all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            },
+            "description": "List all reviews."
+          }
+        },
+        {
+          "name": "GET by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reviews/:review_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                ":review_id"
+              ],
+              "variable": [
+                {
+                  "key": "review_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Fetch one review by id."
+          }
+        },
+        {
+          "name": "POST create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"account_id\": 1,\n  \"app_id\": 1,\n  \"rating\": 4.5,\n  \"comment\": \"Great app\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Create a review. Required: account_id, app_id, rating. Optional: comment. Requires an existing library entry for the same (account_id, app_id) - run 'library > POST create' first."
+          }
+        },
+        {
+          "name": "PUT update",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reviews/:review_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                ":review_id"
+              ],
+              "variable": [
+                {
+                  "key": "review_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5.0,\n  \"comment\": \"Excellent\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Full update. Required: rating, comment."
+          }
+        },
+        {
+          "name": "PATCH update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/reviews/:review_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                ":review_id"
+              ],
+              "variable": [
+                {
+                  "key": "review_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4.0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Partial update. At least one of: rating, comment."
+          }
+        },
+        {
+          "name": "DELETE",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/reviews/:review_id",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "reviews",
+                ":review_id"
+              ],
+              "variable": [
+                {
+                  "key": "review_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Delete a review. Returns 204 No Content."
+          }
+        }
+      ]
+    },
+    {
+      "name": "M:1 relationships",
+      "description": "Read-only many-to-one / parent-child navigation endpoints.",
+      "item": [
+        {
+          "name": "GET /accounts/:id/companies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/:account_id/companies",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                ":account_id",
+                "companies"
+              ],
+              "variable": [
+                {
+                  "key": "account_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Company owned by the given developer account ([] if none)."
+          }
+        },
+        {
+          "name": "GET /accounts/:id/library",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/:account_id/library",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                ":account_id",
+                "library"
+              ],
+              "variable": [
+                {
+                  "key": "account_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Library entries of an account."
+          }
+        },
+        {
+          "name": "GET /companies/:id/apps",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/companies/:company_id/apps",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "companies",
+                ":company_id",
+                "apps"
+              ],
+              "variable": [
+                {
+                  "key": "company_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Apps published by a company."
+          }
+        },
+        {
+          "name": "GET /apps/:id/versions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps/:app_id/versions",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps",
+                ":app_id",
+                "versions"
+              ],
+              "variable": [
+                {
+                  "key": "app_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Versions of an app."
+          }
+        },
+        {
+          "name": "GET /apps/:id/reviews",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps/:app_id/reviews",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps",
+                ":app_id",
+                "reviews"
+              ],
+              "variable": [
+                {
+                  "key": "app_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Reviews of an app."
+          }
+        },
+        {
+          "name": "GET /apps/:id/library",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps/:app_id/library",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps",
+                ":app_id",
+                "library"
+              ],
+              "variable": [
+                {
+                  "key": "app_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Library entries referencing an app."
+          }
+        },
+        {
+          "name": "GET /devices/:id/installations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/devices/:device_id/installations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices",
+                ":device_id",
+                "installations"
+              ],
+              "variable": [
+                {
+                  "key": "device_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Installations on a device."
+          }
+        },
+        {
+          "name": "GET /apps_versions/:id/installations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps_versions/:version_id/installations",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps_versions",
+                ":version_id",
+                "installations"
+              ],
+              "variable": [
+                {
+                  "key": "version_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Installations of an app version."
+          }
+        }
+      ]
+    },
+    {
+      "name": "M:M relationships",
+      "description": "Read-only many-to-many navigation (accounts<->devices, apps<->categories). Link creation/removal exercises are intentionally excluded here.",
+      "item": [
+        {
+          "name": "GET /accounts/:id/devices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/accounts/:account_id/devices",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "accounts",
+                ":account_id",
+                "devices"
+              ],
+              "variable": [
+                {
+                  "key": "account_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Devices attached to an account."
+          }
+        },
+        {
+          "name": "GET /devices/:id/accounts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/devices/:device_id/accounts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "devices",
+                ":device_id",
+                "accounts"
+              ],
+              "variable": [
+                {
+                  "key": "device_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Accounts attached to a device."
+          }
+        },
+        {
+          "name": "GET /apps/:id/categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/apps/:app_id/categories",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "apps",
+                ":app_id",
+                "categories"
+              ],
+              "variable": [
+                {
+                  "key": "app_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Categories of an app."
+          }
+        },
+        {
+          "name": "GET /categories/:id/apps",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/categories/:category_id/apps",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "categories",
+                ":category_id",
+                "apps"
+              ],
+              "variable": [
+                {
+                  "key": "category_id",
+                  "value": "1",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "Apps in a category."
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:5000",
+      "type": "string",
+      "description": "Base URL of the Flask API (python app.py, default port 5000)."
+    }
+  ]
+}

@@ -1,14 +1,17 @@
 $kind: http-request
-url: "{{baseUrl}}/companies/1"
+description: "Full update. Required: company_name, contact_email, developer_id."
+url: "{{base_url}}/companies/:company_id"
 method: PUT
 headers:
   Content-Type: application/json
+pathVariables:
+  company_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "company_name": "PixelForge Studio",
-      "contact_email": "support@pixelforge.example.com",
-      "developer_account_id": 6
+      "company_name": "Nova Labs",
+      "contact_email": "support@novalabs.example.com",
+      "developer_id": 1
     }
 order: 4000

@@ -1,14 +1,13 @@
 from my_project import db
 from my_project.auth.domain.accounts_devices import AccountDevice
 
-def find_all():
-    return AccountDevice.query.all()
 
-def find_by_id(account_id, device_id):
-    return AccountDevice.query.get((account_id, device_id))
+def find_link(account_id, device_id):
+    return db.session.get(AccountDevice, (account_id, device_id))
 
-def create(data):
-    instance = AccountDevice(**data)
+
+def create_link(account_id, device_id):
+    instance = AccountDevice(account_id=account_id, device_id=device_id)
     try:
         db.session.add(instance)
         db.session.commit()
@@ -17,17 +16,8 @@ def create(data):
         db.session.rollback()
         raise
 
-def update(instance, data):
-    try:
-        for key, value in data.items():
-            setattr(instance, key, value)
-        db.session.commit()
-        return instance
-    except Exception:
-        db.session.rollback()
-        raise
 
-def delete(instance):
+def delete_link(instance):
     try:
         db.session.delete(instance)
         db.session.commit()

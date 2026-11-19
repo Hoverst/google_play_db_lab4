@@ -1,11 +1,14 @@
 from my_project import db
 from my_project.auth.domain.categories import Category
 
+
 def find_all():
     return Category.query.all()
 
+
 def find_by_id(id):
-    return Category.query.get(id)
+    return db.session.get(Category, id)
+
 
 def create(data):
     instance = Category(**data)
@@ -17,6 +20,7 @@ def create(data):
         db.session.rollback()
         raise
 
+
 def update(instance, data):
     try:
         for key, value in data.items():
@@ -26,6 +30,7 @@ def update(instance, data):
     except Exception:
         db.session.rollback()
         raise
+
 
 def delete(instance):
     try:

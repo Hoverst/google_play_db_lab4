@@ -1,12 +1,15 @@
 $kind: http-request
-url: "{{baseUrl}}/installations/1/1"
+description: "Partial update. At least one of: device_id, app_version_id."
+url: "{{base_url}}/installations/:installation_id"
 method: PATCH
 headers:
   Content-Type: application/json
+pathVariables:
+  installation_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "installed_at": "2026-02-01T12:00:00"
+      "app_version_id": 3
     }
-order: 4000
+order: 5000

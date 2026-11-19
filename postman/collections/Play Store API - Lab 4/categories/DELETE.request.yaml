@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/categories/1"
+description: Delete a category. Returns 204 No Content.
+url: "{{base_url}}/categories/:category_id"
 method: DELETE
-order: 5000
+pathVariables:
+  category_id: "1"
+order: 6000

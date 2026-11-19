@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/devices/1"
+description: Delete a device. Returns 204 No Content.
+url: "{{base_url}}/devices/:device_id"
 method: DELETE
-order: 5000
+pathVariables:
+  device_id: "1"
+order: 6000

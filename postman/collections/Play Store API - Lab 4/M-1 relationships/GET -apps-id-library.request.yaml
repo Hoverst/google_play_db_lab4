@@ -1,5 +1,8 @@
 $kind: http-request
 name: GET /apps/:id/library
-url: "{{baseUrl}}/apps/1/library"
+description: Library entries referencing an app.
+url: "{{base_url}}/apps/:app_id/library"
 method: GET
-order: 11000
+pathVariables:
+  app_id: "1"
+order: 6000

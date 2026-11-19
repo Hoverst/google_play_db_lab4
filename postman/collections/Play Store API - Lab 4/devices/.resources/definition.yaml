@@ -1,2 +1,3 @@
 $kind: collection
+description: Device CRUD.
 order: 2000

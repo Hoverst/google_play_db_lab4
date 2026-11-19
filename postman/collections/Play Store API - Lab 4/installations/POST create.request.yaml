@@ -1,14 +1,14 @@
 $kind: http-request
-url: "{{baseUrl}}/installations"
+description: "Create an installation. Required: device_id, app_version_id."
+url: "{{base_url}}/installations"
 method: POST
 headers:
   Content-Type: application/json
 body:
-  type: text
+  type: json
   content: |-
     {
-      "app_id": 1,
       "device_id": 1,
-      "installed_at": "2026-01-01T12:00:00"
+      "app_version_id": 2
     }
 order: 3000

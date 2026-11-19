@@ -1,12 +1,15 @@
 $kind: http-request
-url: "{{baseUrl}}/categories/1"
+description: "Partial update. Required: name."
+url: "{{base_url}}/categories/:category_id"
 method: PATCH
 headers:
   Content-Type: application/json
+pathVariables:
+  category_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
       "name": "Tools"
     }
-order: 4000
+order: 5000

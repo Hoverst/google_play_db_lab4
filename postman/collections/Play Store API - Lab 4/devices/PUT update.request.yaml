@@ -1,13 +1,16 @@
 $kind: http-request
-url: "{{baseUrl}}/devices/1"
+description: "Full update. Required: model, os_version."
+url: "{{base_url}}/devices/:device_id"
 method: PUT
 headers:
   Content-Type: application/json
+pathVariables:
+  device_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
       "model": "Pixel 7",
-      "os_version": "14"
+      "os_version": "Android 15"
     }
 order: 4000

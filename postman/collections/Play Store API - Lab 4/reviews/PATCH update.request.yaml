@@ -1,13 +1,15 @@
 $kind: http-request
-url: "{{baseUrl}}/reviews/1/1"
+description: "Partial update. At least one of: rating, comment."
+url: "{{base_url}}/reviews/:review_id"
 method: PATCH
 headers:
   Content-Type: application/json
+pathVariables:
+  review_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "rating": 5.0,
-      "comment": "Excellent"
+      "rating": 4.0
     }
-order: 4000
+order: 5000

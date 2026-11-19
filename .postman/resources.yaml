@@ -1,6 +1,6 @@
 # Use this workspace to collaborate
 workspace:
-  id: 5d851b23-44e0-4633-ae7a-d18888d5f4cc
+  id: 74b2784a-fea4-40f2-95b3-f0b412b89c95
 
 localResources:
   collections: []
@@ -9,4 +9,4 @@ localResources:
 
 cloudResources:
   collections:
-    ../postman/collections/Play Store API - Lab 4: 53297d8f-2c05-4077-9e0d-7dde138759f0
+    ../postman/collections/Play Store API - Lab 4: e30341a8-a5ac-49bd-98f8-35811529b427

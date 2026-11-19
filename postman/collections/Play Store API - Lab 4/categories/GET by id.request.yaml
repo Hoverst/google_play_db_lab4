@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/categories/1"
+description: Fetch one category by id.
+url: "{{base_url}}/categories/:category_id"
 method: GET
+pathVariables:
+  category_id: "1"
 order: 2000

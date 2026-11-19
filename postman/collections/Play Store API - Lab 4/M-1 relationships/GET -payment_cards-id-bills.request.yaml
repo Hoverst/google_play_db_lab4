@@ -1,5 +1,0 @@
-$kind: http-request
-name: GET /payment_cards/:id/bills
-url: "{{baseUrl}}/payment_cards/1/bills"
-method: GET
-order: 14000

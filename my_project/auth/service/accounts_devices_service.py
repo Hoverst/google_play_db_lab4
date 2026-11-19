@@ -1,34 +1,43 @@
 from flask import abort
-from my_project.auth.dao import accounts_devices_dao
-from my_project.utils.resource_update import prepare_update
+from sqlalchemy.exc import IntegrityError
+from my_project.auth.dao import accounts_dao, devices_dao, accounts_devices_dao
 
-def get_all():
-    return [instance.to_dict() for instance in accounts_devices_dao.find_all()]
 
-def get_by_id(account_id, device_id):
-    instance = accounts_devices_dao.find_by_id(account_id, device_id)
-    if instance is None:
+def list_devices(account_id):
+    account = accounts_dao.find_by_id_active(account_id)
+    if account is None:
         abort(404)
-    return instance.to_dict()
+    return [d.to_dict() for d in account.devices]
 
-def create(data):
-    required_fields = ['account_id', 'device_id']
-    for field in required_fields:
-        if field not in data:
-            abort(400, description=f"Missing required field: {field}")
-    instance = accounts_devices_dao.create(data)
-    return instance.to_dict()
 
-def update(account_id, device_id, data, partial=False):
-    instance = accounts_devices_dao.find_by_id(account_id, device_id)
-    if instance is None:
+def list_accounts(device_id):
+    device = devices_dao.find_by_id(device_id)
+    if device is None:
         abort(404)
-    clean = prepare_update('accounts_devices', data, partial=partial)
-    instance = accounts_devices_dao.update(instance, clean)
-    return instance.to_dict()
+    return [a.to_dict() for a in device.accounts if a.deleted_at is None]
 
-def delete(account_id, device_id):
-    instance = accounts_devices_dao.find_by_id(account_id, device_id)
-    if instance is None:
+
+def attach(account_id, device_id):
+    account = accounts_dao.find_by_id_active(account_id)
+    if account is None:
         abort(404)
-    accounts_devices_dao.delete(instance)
+    device = devices_dao.find_by_id(device_id)
+    if device is None:
+        abort(404)
+    if accounts_devices_dao.find_link(account_id, device_id) is not None:
+        abort(409, description="Account already linked to this device")
+    try:
+        link = accounts_devices_dao.create_link(account_id, device_id)
+    except IntegrityError:
+        abort(409, description="Account already linked to this device")
+    return link.to_dict()
+
+
+def detach(account_id, device_id):
+    account = accounts_dao.find_by_id_active(account_id)
+    if account is None:
+        abort(404)
+    link = accounts_devices_dao.find_link(account_id, device_id)
+    if link is None:
+        abort(404)
+    accounts_devices_dao.delete_link(link)

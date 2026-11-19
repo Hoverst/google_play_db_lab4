@@ -1,34 +1,45 @@
 from flask import abort
+from sqlalchemy.exc import IntegrityError
 from my_project.auth.dao import categories_dao
-from my_project.utils.resource_update import prepare_update
+
 
 def get_all():
-    return [instance.to_dict() for instance in categories_dao.find_all()]
+    return [c.to_dict() for c in categories_dao.find_all()]
 
-def get_by_id(id):
-    instance = categories_dao.find_by_id(id)
-    if instance is None:
+
+def get_by_id(category_id):
+    category = categories_dao.find_by_id(category_id)
+    if category is None:
         abort(404)
-    return instance.to_dict()
+    return category.to_dict()
+
 
 def create(data):
-    required_fields = ['name']
-    for field in required_fields:
-        if field not in data:
-            abort(400, description=f"Missing required field: {field}")
-    instance = categories_dao.create(data)
-    return instance.to_dict()
+    try:
+        category = categories_dao.create(data)
+    except IntegrityError:
+        abort(409, description="Category name already exists")
+    return category.to_dict()
 
-def update(id, data, partial=False):
-    instance = categories_dao.find_by_id(id)
-    if instance is None:
-        abort(404)
-    clean = prepare_update('categories', data, partial=partial)
-    instance = categories_dao.update(instance, clean)
-    return instance.to_dict()
 
-def delete(id):
-    instance = categories_dao.find_by_id(id)
-    if instance is None:
+def update(category_id, data, partial=False):
+    category = categories_dao.find_by_id(category_id)
+    if category is None:
         abort(404)
-    categories_dao.delete(instance)
+    try:
+        category = categories_dao.update(category, data)
+    except IntegrityError:
+        abort(409, description="Category name already exists")
+    return category.to_dict()
+
+
+def delete(category_id):
+    category = categories_dao.find_by_id(category_id)
+    if category is None:
+        abort(404)
+    if category.apps:
+        abort(409, description="Cannot delete category linked to apps")
+    try:
+        categories_dao.delete(category)
+    except IntegrityError:
+        abort(409, description="Cannot delete category due to related records")

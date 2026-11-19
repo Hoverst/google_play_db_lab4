@@ -1,12 +1,15 @@
 $kind: http-request
-url: "{{baseUrl}}/devices/1"
+description: "Partial update. At least one of: model, os_version."
+url: "{{base_url}}/devices/:device_id"
 method: PATCH
 headers:
   Content-Type: application/json
+pathVariables:
+  device_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
       "os_version": "Android 15"
     }
-order: 4000
+order: 5000

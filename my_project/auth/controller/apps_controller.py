@@ -1,96 +1,76 @@
 from flask import request, jsonify, abort
-from sqlalchemy.exc import IntegrityError
-from my_project import db
-from my_project.auth.domain.apps import App
+from my_project.auth.dto import apps_dto
 from my_project.auth.service import apps_service
 
+
 def get_all():
-    result = apps_service.get_all()
-    return jsonify(result), 200
+    return jsonify(apps_service.get_all()), 200
+
 
 def get_by_id(app_id):
-    result = apps_service.get_by_id(app_id)
-    return jsonify(result), 200
+    return jsonify(apps_service.get_by_id(app_id)), 200
+
 
 def create():
-    data = request.get_json(silent=True)
-    if data is None:
-        return jsonify({"error": "No input data provided"}), 400
-    try:
-        result = apps_service.create(data)
-        return jsonify(result), 201
-    except IntegrityError as e:
-        db.session.rollback()
-        return jsonify({"error": "Integrity constraint violated: " + str(e.orig)}), 409
+    data = apps_dto.parse_create(request.get_json(silent=True))
+    return jsonify(apps_service.create(data)), 201
+
 
 def update(app_id):
-    data = request.get_json(silent=True)
-    if data is None:
-        return jsonify({"error": "No input data provided"}), 400
-    try:
-        result = apps_service.update(app_id, data, partial=False)
-        return jsonify(result), 200
-    except IntegrityError as e:
-        db.session.rollback()
-        return jsonify({"error": "Integrity constraint violated: " + str(e.orig)}), 409
+    data = apps_dto.parse_put(request.get_json(silent=True))
+    return jsonify(apps_service.update(app_id, data, partial=False)), 200
+
 
 def patch(app_id):
-    data = request.get_json(silent=True)
-    if data is None:
-        return jsonify({"error": "No input data provided"}), 400
-    try:
-        result = apps_service.update(app_id, data, partial=True)
-        return jsonify(result), 200
-    except IntegrityError as e:
-        db.session.rollback()
-        return jsonify({"error": "Integrity constraint violated: " + str(e.orig)}), 409
+    data = apps_dto.parse_patch(request.get_json(silent=True))
+    return jsonify(apps_service.update(app_id, data, partial=True)), 200
+
 
 def delete(app_id):
-    try:
-        apps_service.delete(app_id)
+    result = apps_service.delete(app_id)
+    if result is None:
         return "", 204
-    except IntegrityError as e:
-        db.session.rollback()
-        return jsonify({"error": "Integrity constraint violated: " + str(e.orig)}), 409
+    return jsonify(result), 200
 
-def get_versions(app_id):
-    app = App.query.get(app_id)
-    if app is None:
-        abort(404)
-    return jsonify([item.to_dict() for item in app.versions]), 200
-
-def get_discounts(app_id):
-    app = App.query.get(app_id)
-    if app is None:
-        abort(404)
-    return jsonify([item.to_dict() for item in app.discounts]), 200
-
-def get_reviews(app_id):
-    app = App.query.get(app_id)
-    if app is None:
-        abort(404)
-    return jsonify([item.to_dict() for item in app.reviews]), 200
-
-def get_bills(app_id):
-    app = App.query.get(app_id)
-    if app is None:
-        abort(404)
-    return jsonify([item.to_dict() for item in app.bills]), 200
-
-def get_library(app_id):
-    app = App.query.get(app_id)
-    if app is None:
-        abort(404)
-    return jsonify([item.to_dict() for item in app.library_entries]), 200
-
-def get_installations(app_id):
-    app = App.query.get(app_id)
-    if app is None:
-        abort(404)
-    return jsonify([item.to_dict() for item in app.installations]), 200
 
 def get_categories(app_id):
-    app = App.query.get(app_id)
+    from my_project.auth.service import apps_categories_service
+    return jsonify(apps_categories_service.list_categories(app_id)), 200
+
+
+def attach_category(app_id):
+    from my_project.auth.service import apps_categories_service
+    from my_project.auth.dto._common import require_dict, as_pos_int
+    data = require_dict(request.get_json(silent=True))
+    category_id = as_pos_int(data, "category_id")
+    return jsonify(apps_categories_service.attach(app_id, category_id)), 201
+
+
+def detach_category(app_id, category_id):
+    from my_project.auth.service import apps_categories_service
+    apps_categories_service.detach(app_id, category_id)
+    return "", 204
+
+
+def get_versions(app_id):
+    from my_project.auth.dao import apps_dao
+    app = apps_dao.find_by_id(app_id)
     if app is None:
         abort(404)
-    return jsonify([item.to_dict() for item in app.categories]), 200
+    return jsonify([v.to_dict() for v in app.versions]), 200
+
+
+def get_reviews(app_id):
+    from my_project.auth.dao import apps_dao
+    app = apps_dao.find_by_id(app_id)
+    if app is None:
+        abort(404)
+    return jsonify([r.to_dict() for r in app.reviews]), 200
+
+
+def get_library(app_id):
+    from my_project.auth.dao import apps_dao
+    app = apps_dao.find_by_id(app_id)
+    if app is None:
+        abort(404)
+    return jsonify([e.to_dict() for e in app.library_entries]), 200

@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/apps_versions/1"
+description: Delete an app version. Returns 204 No Content.
+url: "{{base_url}}/apps_versions/:version_id"
 method: DELETE
-order: 5000
+pathVariables:
+  version_id: "1"
+order: 6000

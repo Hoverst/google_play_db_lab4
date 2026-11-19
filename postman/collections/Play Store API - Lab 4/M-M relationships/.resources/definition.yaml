@@ -1,3 +1,4 @@
 $kind: collection
 name: M:M relationships
-order: 16000
+description: Read-only many-to-many navigation (accounts<->devices, apps<->categories). Link creation/removal exercises are intentionally excluded here.
+order: 11000

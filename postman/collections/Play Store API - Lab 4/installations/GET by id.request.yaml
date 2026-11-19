@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/installations/1/1"
+description: Fetch one installation by id.
+url: "{{base_url}}/installations/:installation_id"
 method: GET
+pathVariables:
+  installation_id: "1"
 order: 2000

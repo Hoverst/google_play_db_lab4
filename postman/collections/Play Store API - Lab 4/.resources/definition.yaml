@@ -1,4 +1,11 @@
 $kind: collection
-description: Flask + MySQL CRUD and relationship endpoints for play_store.
+description: |-
+  Flask + MySQL REST API for the `play_store` schema (Google Play-like store).
+
+  Stack: Route -> Controller -> DTO (validation) -> Service -> DAO -> MySQL.
+
+  Resources: accounts (soft delete), devices, accounts_devices (M:N), companies, apps, categories, apps_categories (M:N), apps_versions, installations, library, reviews.
+
+  Conventions: GET list, GET by id, POST (201), PUT (full update), PATCH (partial), DELETE (204). JSON bodies use Content-Type: application/json. Unknown or missing fields return 400; missing rows return 404.
 variables:
-  baseUrl: ""
+  base_url: http://127.0.0.1:5000

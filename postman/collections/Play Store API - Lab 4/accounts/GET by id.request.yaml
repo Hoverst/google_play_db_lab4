@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/accounts/1"
+description: Fetch one account by id (404 if missing or soft-deleted).
+url: "{{base_url}}/accounts/:account_id"
 method: GET
+pathVariables:
+  account_id: "1"
 order: 2000

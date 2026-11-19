@@ -1,4 +1,5 @@
 $kind: http-request
-url: "{{baseUrl}}/companies"
+description: List all companies.
+url: "{{base_url}}/companies"
 method: GET
 order: 1000

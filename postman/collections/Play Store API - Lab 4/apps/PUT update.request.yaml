@@ -1,16 +1,19 @@
 $kind: http-request
-url: "{{baseUrl}}/apps/1"
+description: "Full update. Required: title, package_name, caption, company_id, status."
+url: "{{base_url}}/apps/:app_id"
 method: PUT
 headers:
   Content-Type: application/json
+pathVariables:
+  app_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "title": "Pixel Runner",
-      "caption": "Endless runner with retro pixel graphics",
-      "price": 0.0,
-      "currency": "USD",
-      "company_id": 1
+      "title": "Nova Notes",
+      "package_name": "com.novalabs.notes",
+      "caption": "Fast notes and syncing",
+      "company_id": 1,
+      "status": "published"
     }
 order: 4000

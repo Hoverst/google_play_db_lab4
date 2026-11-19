@@ -1,14 +1,13 @@
 from my_project import db
 from my_project.auth.domain.apps_categories import AppCategory
 
-def find_all():
-    return AppCategory.query.all()
 
-def find_by_id(app_id, category_id):
-    return AppCategory.query.get((app_id, category_id))
+def find_link(app_id, category_id):
+    return db.session.get(AppCategory, (app_id, category_id))
 
-def create(data):
-    instance = AppCategory(**data)
+
+def create_link(app_id, category_id):
+    instance = AppCategory(app_id=app_id, category_id=category_id)
     try:
         db.session.add(instance)
         db.session.commit()
@@ -17,17 +16,8 @@ def create(data):
         db.session.rollback()
         raise
 
-def update(instance, data):
-    try:
-        for key, value in data.items():
-            setattr(instance, key, value)
-        db.session.commit()
-        return instance
-    except Exception:
-        db.session.rollback()
-        raise
 
-def delete(instance):
+def delete_link(instance):
     try:
         db.session.delete(instance)
         db.session.commit()

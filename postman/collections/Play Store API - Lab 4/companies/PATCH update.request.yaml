@@ -1,12 +1,15 @@
 $kind: http-request
-url: "{{baseUrl}}/companies/1"
+description: "Partial update. At least one of: company_name, contact_email, developer_id."
+url: "{{base_url}}/companies/:company_id"
 method: PATCH
 headers:
   Content-Type: application/json
+pathVariables:
+  company_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
       "contact_email": "new@example.com"
     }
-order: 4000
+order: 5000

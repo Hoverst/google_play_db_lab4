@@ -1,11 +1,14 @@
 from my_project import db
 from my_project.auth.domain.installations import Installation
 
+
 def find_all():
     return Installation.query.all()
 
-def find_by_id(app_id, device_id):
-    return Installation.query.get((app_id, device_id))
+
+def find_by_id(id):
+    return db.session.get(Installation, id)
+
 
 def create(data):
     instance = Installation(**data)
@@ -17,6 +20,7 @@ def create(data):
         db.session.rollback()
         raise
 
+
 def update(instance, data):
     try:
         for key, value in data.items():
@@ -26,6 +30,7 @@ def update(instance, data):
     except Exception:
         db.session.rollback()
         raise
+
 
 def delete(instance):
     try:

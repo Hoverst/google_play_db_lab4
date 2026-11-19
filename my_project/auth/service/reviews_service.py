@@ -1,34 +1,48 @@
+from datetime import datetime, timezone
 from flask import abort
-from my_project.auth.dao import reviews_dao
-from my_project.utils.resource_update import prepare_update
+from sqlalchemy.exc import IntegrityError
+from my_project.auth.dao import reviews_dao, library_dao, accounts_dao
+
 
 def get_all():
-    return [instance.to_dict() for instance in reviews_dao.find_all()]
+    return [r.to_dict() for r in reviews_dao.find_all()]
 
-def get_by_id(account_id, app_id):
-    instance = reviews_dao.find_by_id(account_id, app_id)
-    if instance is None:
+
+def get_by_id(review_id):
+    review = reviews_dao.find_by_id(review_id)
+    if review is None:
         abort(404)
-    return instance.to_dict()
+    return review.to_dict()
+
 
 def create(data):
-    required_fields = ['account_id', 'app_id', 'rating']
-    for field in required_fields:
-        if field not in data:
-            abort(400, description=f"Missing required field: {field}")
-    instance = reviews_dao.create(data)
-    return instance.to_dict()
+    if accounts_dao.find_by_id_active(data["account_id"]) is None:
+        abort(400, description="account_id must reference an existing non-deleted account")
+    lib = library_dao.find_by_account_and_app(data["account_id"], data["app_id"])
+    if lib is None:
+        abort(409, description="Review requires an existing library entry for this account and app")
+    try:
+        review = reviews_dao.create(data)
+    except IntegrityError:
+        abort(409, description="Review already exists for this account and app")
+    return review.to_dict()
 
-def update(account_id, app_id, data, partial=False):
-    instance = reviews_dao.find_by_id(account_id, app_id)
-    if instance is None:
-        abort(404)
-    clean = prepare_update('reviews', data, partial=partial)
-    instance = reviews_dao.update(instance, clean)
-    return instance.to_dict()
 
-def delete(account_id, app_id):
-    instance = reviews_dao.find_by_id(account_id, app_id)
-    if instance is None:
+def update(review_id, data, partial=False):
+    review = reviews_dao.find_by_id(review_id)
+    if review is None:
         abort(404)
-    reviews_dao.delete(instance)
+    payload = dict(data)
+    payload["updated_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
+    try:
+        review = reviews_dao.update(review, payload)
+    except IntegrityError:
+        abort(409, description="Conflict updating review")
+    return review.to_dict()
+
+
+def delete(review_id):
+    review = reviews_dao.find_by_id(review_id)
+    if review is None:
+        abort(404)
+    reviews_dao.delete(review)

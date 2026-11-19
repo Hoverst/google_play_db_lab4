@@ -1,34 +1,51 @@
+from datetime import datetime, timezone
 from flask import abort
-from my_project.auth.dao import installations_dao
-from my_project.utils.resource_update import prepare_update
+from sqlalchemy.exc import IntegrityError
+from my_project.auth.dao import installations_dao, devices_dao, apps_versions_dao
+
 
 def get_all():
-    return [instance.to_dict() for instance in installations_dao.find_all()]
+    return [i.to_dict() for i in installations_dao.find_all()]
 
-def get_by_id(app_id, device_id):
-    instance = installations_dao.find_by_id(app_id, device_id)
-    if instance is None:
+
+def get_by_id(installation_id):
+    inst = installations_dao.find_by_id(installation_id)
+    if inst is None:
         abort(404)
-    return instance.to_dict()
+    return inst.to_dict()
+
 
 def create(data):
-    required_fields = ['app_id', 'device_id']
-    for field in required_fields:
-        if field not in data:
-            abort(400, description=f"Missing required field: {field}")
-    instance = installations_dao.create(data)
-    return instance.to_dict()
+    if devices_dao.find_by_id(data["device_id"]) is None:
+        abort(400, description="device_id must reference an existing device")
+    if apps_versions_dao.find_by_id(data["app_version_id"]) is None:
+        abort(400, description="app_version_id must reference an existing app version")
+    try:
+        inst = installations_dao.create(data)
+    except IntegrityError:
+        abort(409, description="Installation already exists for this device and app version")
+    return inst.to_dict()
 
-def update(app_id, device_id, data, partial=False):
-    instance = installations_dao.find_by_id(app_id, device_id)
-    if instance is None:
-        abort(404)
-    clean = prepare_update('installations', data, partial=partial)
-    instance = installations_dao.update(instance, clean)
-    return instance.to_dict()
 
-def delete(app_id, device_id):
-    instance = installations_dao.find_by_id(app_id, device_id)
-    if instance is None:
+def update(installation_id, data, partial=False):
+    inst = installations_dao.find_by_id(installation_id)
+    if inst is None:
         abort(404)
-    installations_dao.delete(instance)
+    if "device_id" in data and devices_dao.find_by_id(data["device_id"]) is None:
+        abort(400, description="device_id must reference an existing device")
+    if "app_version_id" in data and apps_versions_dao.find_by_id(data["app_version_id"]) is None:
+        abort(400, description="app_version_id must reference an existing app version")
+    payload = dict(data)
+    payload["updated_at"] = datetime.now(timezone.utc).replace(tzinfo=None)
+    try:
+        inst = installations_dao.update(inst, payload)
+    except IntegrityError:
+        abort(409, description="Installation already exists for this device and app version")
+    return inst.to_dict()
+
+
+def delete(installation_id):
+    inst = installations_dao.find_by_id(installation_id)
+    if inst is None:
+        abort(404)
+    installations_dao.delete(inst)

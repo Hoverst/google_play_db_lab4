@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/accounts/1"
+description: Soft-delete an account. Returns 204 No Content.
+url: "{{base_url}}/accounts/:account_id"
 method: DELETE
-order: 5000
+pathVariables:
+  account_id: "1"
+order: 6000

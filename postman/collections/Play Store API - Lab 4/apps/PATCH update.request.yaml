@@ -1,13 +1,16 @@
 $kind: http-request
-url: "{{baseUrl}}/apps/1"
+description: "Partial update. At least one of: title, package_name, caption, company_id, status."
+url: "{{base_url}}/apps/:app_id"
 method: PATCH
 headers:
   Content-Type: application/json
+pathVariables:
+  app_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "price": 2.99,
-      "caption": "Updated caption"
+      "caption": "Updated caption",
+      "status": "unpublished"
     }
-order: 4000
+order: 5000

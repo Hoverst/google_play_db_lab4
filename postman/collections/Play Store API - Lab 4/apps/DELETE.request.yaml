@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/apps/1"
+description: Delete an app. Returns 204 No Content.
+url: "{{base_url}}/apps/:app_id"
 method: DELETE
-order: 5000
+pathVariables:
+  app_id: "1"
+order: 6000

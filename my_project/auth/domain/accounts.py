@@ -1,31 +1,28 @@
 from my_project import db
+from sqlalchemy.dialects.mysql import INTEGER
+
 
 class Account(db.Model):
+    __tablename__ = "accounts"
 
-    __tablename__ = 'accounts'
-
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(INTEGER(unsigned=True), primary_key=True, autoincrement=True)
     email = db.Column(db.String(255), nullable=False, unique=True)
     password_hash = db.Column(db.String(255), nullable=False)
     name = db.Column(db.String(70), nullable=False)
-    is_developer = db.Column(db.SmallInteger, nullable=False, default=0)
-    country = db.Column(db.String(70), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.now())
+    created_at = db.Column(db.DateTime, nullable=False, server_default=db.func.current_timestamp())
+    deleted_at = db.Column(db.DateTime, nullable=True)
 
-    devices = db.relationship('Device', secondary='accounts_devices', back_populates='accounts', lazy='select')
-    companies = db.relationship('Company', back_populates='account', lazy='select')
-    payment_cards = db.relationship('PaymentCard', back_populates='account', lazy='select')
-    reviews = db.relationship('Review', back_populates='account', lazy='select')
-    bills = db.relationship('Bill', back_populates='account', lazy='select')
-    library_entries = db.relationship('Library', back_populates='account', lazy='select')
+    devices = db.relationship(
+        "Device", secondary="accounts_devices", back_populates="accounts", lazy="select"
+    )
+    company = db.relationship("Company", back_populates="developer", uselist=False, lazy="select")
+    library_entries = db.relationship("Library", back_populates="account", lazy="select")
 
     def to_dict(self):
         return {
-            'id': self.id,
-            'email': self.email,
-            'password_hash': self.password_hash,
-            'name': self.name,
-            'is_developer': self.is_developer,
-            'country': self.country,
-            'created_at': self.created_at.isoformat() if self.created_at else None
+            "id": self.id,
+            "email": self.email,
+            "name": self.name,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "deleted_at": self.deleted_at.isoformat() if self.deleted_at else None,
         }

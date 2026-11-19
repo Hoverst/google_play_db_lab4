@@ -1,5 +1,8 @@
 $kind: http-request
 name: GET /devices/:id/installations
-url: "{{baseUrl}}/devices/1/installations"
+description: Installations on a device.
+url: "{{base_url}}/devices/:device_id/installations"
 method: GET
-order: 13000
+pathVariables:
+  device_id: "1"
+order: 7000

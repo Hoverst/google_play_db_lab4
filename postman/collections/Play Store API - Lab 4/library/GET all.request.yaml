@@ -1,4 +1,5 @@
 $kind: http-request
-url: "{{baseUrl}}/library"
+description: List all library entries.
+url: "{{base_url}}/library"
 method: GET
 order: 1000

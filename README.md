@@ -1,33 +1,92 @@
-# Play Store API (Lab 4)
+# Play Store API
 
-Flask + MySQL back-end для `play_store` бази даних. Реалізовано всі CRUD операції для таблиць (GET all, GET by id, POST, PUT, PATCH, DELETE) та ендпоінти для зовнішніх ключів з типом M:1 та M:M.
+Flask + SQLAlchemy REST API for the MySQL `play_store` schema (Google Play–like store).
 
-## Стек
+## Architecture
 
-- Python 3.10+
-- Flask
-- MySQL база даних: `play_store` (schema у `data.sql`)
+```
+Postman / Client
+  → Route
+  → Controller
+  → DTO (validation)
+  → Service (business rules)
+  → DAO
+  → MySQL
+```
 
-## Як запустити
+## Domain
 
-1. Створення та активація віртуального середовища venv:
+Tables: `accounts` (soft delete), `devices`, `accounts_devices` (M:N), `companies`, `apps`, `categories`, `apps_categories` (M:N), `apps_versions`, `installations`, `library`, `reviews`.
 
-cmd:
+Password storage: unsalted SHA-256 hex (`hashlib.sha256`), matching MySQL `SHA2(password, 256)` in `seed.sql`. Responses never include `password_hash`.
+
+## Configure
+
+1. Copy `config/app.example.yml` → `config/app.yml` and set your MySQL credentials.
+2. Create and seed the database (script is the source of truth):
+
+```bash
+mysql -u root -p < data.sql
+mysql -u root -p < seed.sql
+```
+
+## Run
+
+```bash
 python -m venv venv
 venv\Scripts\activate
-
-2. Для встановлення залежностей:
-
 pip install -r requirements.txt
-
-3. У  `config/app.yml` треба прописати свій пароль від mySQL server
-
-4. Запустити Flask сервер:
-
 python app.py
+```
 
-Має бути такий порт: `http://127.0.0.1:5000`
+Base URL: `http://127.0.0.1:5000`
 
-5. Можна запустити тестування у Postman, якщо імпортувати проект, налаштувати змінну baseUrl на `http://127.0.0.1:5000` та відкрити Local Items 
+## Endpoints (CRUD)
 
-Додатково: файл data.sql містить скрипт для створення таблиць у mySQL та файл seed.sql для заповнення створених таблиць даними 
+| Resource | Base |
+|---|---|
+| accounts | `/accounts` |
+| devices | `/devices` |
+| companies | `/companies` |
+| categories | `/categories` |
+| apps | `/apps` |
+| apps_versions | `/apps_versions` |
+| installations | `/installations` |
+| library | `/library` |
+| reviews | `/reviews` |
+
+Methods: `GET` list, `GET /<id>`, `POST`, `PUT` (full), `PATCH` (partial), `DELETE`.
+
+### Delete semantics
+
+- `DELETE /accounts/<id>` — **soft delete**: sets `deleted_at` (row kept); the account disappears from `GET /accounts` and returns `404`. Every app owned by that developer's company becomes `unpublished` (apps already `suspended` keep that state).
+- `DELETE /apps/<id>` — **hard delete** (`204`) when the app has no versions, library entries or reviews; otherwise **soft delete** by setting `status = 'unpublished'` (`200` with the app JSON). Idempotent, and never downgrades `suspended`.
+- Other resources delete physically and return `409` when related rows block the delete.
+
+### Relationships
+
+- `GET/POST /accounts/<id>/devices`, `DELETE /accounts/<id>/devices/<device_id>`
+- `GET /devices/<id>/accounts`
+- `GET/POST /apps/<id>/categories`, `DELETE /apps/<id>/categories/<category_id>`
+- `GET /categories/<id>/apps`
+- `GET /companies/<id>/apps`
+- `GET /apps/<id>/versions`
+- `GET /accounts/<id>/library`, `GET /apps/<id>/library`
+- `GET /apps/<id>/reviews`
+- `GET /accounts/<id>/companies`
+- `GET /devices/<id>/installations`, `GET /apps_versions/<id>/installations`
+
+## PUT vs PATCH
+
+- **PUT**: all writable fields required.
+- **PATCH**: at least one writable field; unknown fields → `400`.
+
+## Tests
+
+```bash
+pytest
+```
+
+## Postman
+
+Import/open the collection postman_collection.json

@@ -1,179 +1,140 @@
-INSERT INTO `play_store`.`accounts` (`id`, `email`, `password_hash`, `name`, `is_developer`, `country`, `created_at`) VALUES
-(1,  'oleksandr.melnyk@example.com', SHA2('pwd_01', 256), 'Oleksandr Melnyk',   0, 'Ukraine',        '2023-01-15 10:20:00'),
-(2,  'iryna.kovalenko@example.com',  SHA2('pwd_02', 256), 'Iryna Kovalenko',    0, 'Ukraine',        '2023-02-03 14:05:00'),
-(3,  'john.smith@example.com',       SHA2('pwd_03', 256), 'John Smith',         0, 'United States',  '2023-02-20 09:30:00'),
-(4,  'anna.nowak@example.com',       SHA2('pwd_04', 256), 'Anna Nowak',         0, 'Poland',         '2023-03-11 18:45:00'),
-(5,  'lukas.meyer@example.com',      SHA2('pwd_05', 256), 'Lukas Meyer',        0, 'Germany',        '2023-04-02 12:00:00'),
-(6,  'dev@pixelforge.example.com',   SHA2('pwd_06', 256), 'PixelForge Admin',   1, 'United States',  '2022-06-01 08:00:00'),
-(7,  'dev@greenleaf.example.com',    SHA2('pwd_07', 256), 'GreenLeaf Admin',    1, 'Germany',        '2022-07-12 09:10:00'),
-(8,  'dev@softbridge.example.com',   SHA2('pwd_08', 256), 'SoftBridge Admin',   1, 'Ukraine',        '2022-08-23 11:25:00'),
-(9,  'dev@nordapps.example.com',     SHA2('pwd_09', 256), 'NordApps Admin',     1, 'Sweden',         '2022-09-05 13:40:00'),
-(10, 'dev@bluewave.example.com',     SHA2('pwd_10', 256), 'BlueWave Admin',     1, 'Canada',         '2022-10-17 15:55:00'),
-(11, 'dev@kodiak.example.com',       SHA2('pwd_11', 256), 'Kodiak Admin',       1, 'Poland',         '2022-11-28 10:15:00'),
-(12, 'dev@sunrise.example.com',      SHA2('pwd_12', 256), 'Sunrise Admin',      1, 'Japan',          '2023-01-09 07:30:00'),
-(13, 'dev@zenith.example.com',       SHA2('pwd_13', 256), 'Zenith Admin',       1, 'United Kingdom', '2023-01-30 16:20:00'),
-(14, 'dev@mapleapps.example.com',    SHA2('pwd_14', 256), 'Maple Admin',        1, 'Canada',         '2023-02-14 12:45:00'),
-(15, 'dev@carpathia.example.com',    SHA2('pwd_15', 256), 'Carpathia Admin',    1, 'Ukraine',        '2023-03-01 09:00:00');
+START TRANSACTION;
+
+INSERT INTO `play_store`.`accounts` (`id`, `email`, `password_hash`, `name`, `created_at`, `deleted_at`) VALUES
+(1,  'olena.kovalenko@example.com', SHA2('demo_password_1', 256),  'Олена Коваленко',  '2025-01-15 10:00:00', NULL),
+(2,  'andrii.shevchenko@example.com', SHA2('demo_password_2', 256),  'Андрій Шевченко',  '2025-02-03 12:30:00', NULL),
+(3,  'maria.bondar@example.com',    SHA2('demo_password_3', 256),  'Марія Бондар',     '2025-02-20 08:45:00', NULL),
+(4,  'taras.melnyk@example.com',    SHA2('demo_password_4', 256),  'Тарас Мельник',    '2025-03-11 16:10:00', NULL),
+(5,  'iryna.tkachenko@example.com', SHA2('demo_password_5', 256),  'Ірина Ткаченко',   '2025-04-02 09:20:00', NULL),
+(6,  'bohdan.kravchuk@example.com', SHA2('demo_password_6', 256),  'Богдан Кравчук',   '2025-05-18 14:05:00', NULL),
+(7,  'sofiia.lysenko@example.com',  SHA2('demo_password_7', 256),  'Софія Лисенко',    '2025-06-07 11:15:00', NULL),
+(8,  'yurii.oliinyk@example.com',   SHA2('demo_password_8', 256),  'Юрій Олійник',     '2025-07-29 19:40:00', NULL),
+(9,  'daryna.savchenko@example.com', SHA2('demo_password_9', 256),  'Дарина Савченко',  '2025-09-14 07:55:00', NULL),
+(10, 'oleh.petrenko@example.com',   SHA2('demo_password_10', 256), 'Олег Петренко',    '2025-10-30 13:25:00', NULL),
+(11, 'vasyl.hrytsenko@example.com',  SHA2('demo_password_11', 256), 'Василь Гриценко',  '2025-01-20 09:00:00', NULL),
+(12, 'natalia.moroz@example.com',    SHA2('demo_password_12', 256), 'Наталія Мороз',    '2025-02-10 15:20:00', NULL),
+(13, 'viktor.zinchenko@example.com', SHA2('demo_password_13', 256), 'Віктор Зінченко',  '2025-03-05 18:45:00', NULL),
+(14, 'kateryna.polishchuk@example.com', SHA2('demo_password_14', 256), 'Катерина Поліщук', '2025-04-18 10:10:00', NULL),
+(15, 'mykola.rudenko@example.com',   SHA2('demo_password_15', 256), 'Микола Руденко',   '2025-05-25 21:30:00', NULL);
 
 INSERT INTO `play_store`.`devices` (`id`, `model`, `os_version`) VALUES
-(1,  'Pixel 7',           '14'),
-(2,  'Pixel 8 Pro',       '15'),
-(3,  'Galaxy S23',        '14'),
-(4,  'Galaxy A54',        '13'),
-(5,  'Xiaomi 13T',        '14'),
-(6,  'OnePlus 11',        '14'),
-(7,  'Redmi Note 12',     '13'),
-(8,  'Motorola Edge 40',  '14'),
-(9,  'Nothing Phone 2',   '14'),
-(10, 'Galaxy Tab S9',     '14'),
-(11, 'Lenovo Tab P12',    '13'),
-(12, 'Pixel 6a',          '13');
+(1,  'Pixel 7',          'Android 14'),
+(2,  'Pixel 8',          'Android 14'),
+(3,  'Galaxy S23',       'Android 14'),
+(4,  'Galaxy S24',       'Android 15'),
+(5,  'Galaxy A54',       'Android 13'),
+(6,  'Xiaomi 13',        'Android 14'),
+(7,  'OnePlus 11',       'Android 14'),
+(8,  'Redmi Note 12',    'Android 13'),
+(9,  'Motorola Edge 40', 'Android 13'),
+(10, 'Pixel 6a',         'Android 13');
 
 INSERT INTO `play_store`.`accounts_devices` (`account_id`, `device_id`) VALUES
-(1, 1), (1, 10), (2, 3), (2, 4), (3, 2), (3, 12),
-(4, 5), (4, 7),  (5, 6), (5, 9), (6, 8), (7, 11);
+(1, 1),
+(2, 2),
+(3, 3),
+(4, 9),
+(11, 1),
+(11, 4),
+(12, 5),
+(13, 6),
+(14, 7),
+(15, 8);
 
-INSERT INTO `play_store`.`companies` (`id`, `company_name`, `contact_email`, `developer_account_id`) VALUES
-(1,  'PixelForge Studio',  'support@pixelforge.example.com', 6),
-(2,  'GreenLeaf Software', 'contact@greenleaf.example.com',  7),
-(3,  'SoftBridge',         'hello@softbridge.example.com',   8),
-(4,  'NordApps AB',        'info@nordapps.example.com',      9),
-(5,  'BlueWave Inc.',      'team@bluewave.example.com',      10),
-(6,  'Kodiak Studio',      'office@kodiak.example.com',      11),
-(7,  'Sunrise Games',      'support@sunrise.example.com',    12),
-(8,  'Zenith Labs',        NULL,                             13),
-(9,  'Maple Apps',         'contact@mapleapps.example.com',  14),
-(10, 'Carpathia Soft',     'hello@carpathia.example.com',    15);
+INSERT INTO `play_store`.`companies` (`id`, `company_name`, `contact_email`, `developer_id`) VALUES
+(1,  'Nova Labs',          'support@novalabs.example.com',  1),
+(2,  'PixelForge Studio',  'hello@pixelforge.example.com',  2),
+(3,  'GreenLeaf Software', NULL,                            3),
+(4,  'Lviv Apps',          'team@lvivapps.example.com',     4),
+(5,  'Karpaty Games',      'info@karpaty.example.com',      5),
+(6,  'BlueWave Media',     NULL,                            6),
+(7,  'SkyNet Tools',       'contact@skynet.example.com',    7),
+(8,  'Orbit Education',    'learn@orbit.example.com',       8),
+(9,  'FitLife Digital',    'help@fitlife.example.com',      9),
+(10, 'CodeCraft Ltd',      'dev@codecraft.example.com',     10);
 
 INSERT INTO `play_store`.`categories` (`id`, `name`) VALUES
-(1, 'Games'),
-(2, 'Productivity'),
-(3, 'Education'),
-(4, 'Health & Fitness'),
-(5, 'Photography'),
-(6, 'Music & Audio'),
-(7, 'Finance'),
-(8, 'Travel'),
-(9, 'Social'),
-(10, 'Tools');
+(1,  'Games'),
+(2,  'Education'),
+(3,  'Productivity'),
+(4,  'Tools'),
+(5,  'Health & Fitness'),
+(6,  'Music & Audio'),
+(7,  'Photography'),
+(8,  'Social'),
+(9,  'Finance'),
+(10, 'Travel & Local');
 
-INSERT INTO `play_store`.`apps` (`id`, `title`, `caption`, `price`, `currency`, `company_id`) VALUES
-(1,  'Pixel Runner',        'Endless runner with retro pixel graphics',     0.00, 'USD', 1),
-(2,  'Galaxy Defender',     'Space shooter with online leaderboards',       2.99, 'USD', 1),
-(3,  'Leaf Notes',          'Simple and fast note-taking app',              0.00, 'USD', 2),
-(4,  'Habit Garden',        'Build habits and grow your virtual garden',    1.99, 'USD', 2),
-(5,  'BridgeChat',          'Messenger with end-to-end encryption',         0.00, 'USD', 3),
-(6,  'Nord Weather',        'Accurate forecasts for the Nordic region',     0.99, 'EUR', 4),
-(7,  'WaveFit',             'Workout planner and activity tracker',         4.99, 'USD', 5),
-(8,  'Kodiak Photo Editor', 'Professional photo editing on your phone',     6.99, 'USD', 6),
-(9,  'Sunrise Quest',       'Fantasy RPG adventure',                        9.99, 'USD', 7),
-(10, 'Zenith Budget',       'Personal finance and budget planner',          3.49, 'EUR', 8),
-(11, 'Maple Trails',        'Offline hiking maps and routes',               2.49, 'USD', 9),
-(12, 'Carpathian Guide',    'Travel guide to the Carpathian mountains',     0.00, 'USD', 10);
-
-INSERT INTO `play_store`.`apps_versions` (`id`, `app_id`, `version`, `size_bytes`, `created_at`) VALUES
-(1,  1,  '1.0.0', 45234176,  '2023-01-10 10:00:00'),
-(2,  1,  '1.1.0', 47185920,  '2023-03-05 11:30:00'),
-(3,  2,  '1.0.0', 83886080,  '2023-02-01 09:00:00'),
-(4,  3,  '1.0.0', 12582912,  '2023-01-10 12:00:00'),
-(5,  3,  '2.0.0', 15728640,  '2023-06-15 14:20:00'),
-(6,  4,  '1.0.0', 20971520,  '2023-02-18 16:45:00'),
-(7,  5,  '3.2.1', 33554432,  '2023-01-25 08:30:00'),
-(8,  6,  '1.0.0', 9437184,   '2023-03-12 10:10:00'),
-(9,  7,  '1.0.0', 58720256,  '2023-03-25 13:35:00'),
-(10, 8,  '2.4.0', 104857600, '2023-05-02 15:00:00'),
-(11, 9,  '1.0.0', 629145600, '2023-05-20 17:15:00'),
-(12, 10, '1.0.0', 18874368,  '2023-06-01 09:45:00'),
-(13, 11, '1.2.0', 72351744,  '2023-06-18 11:00:00'),
-(14, 12, '1.0.0', 26214400,  '2023-04-10 12:30:00');
-
-INSERT INTO `play_store`.`apps_discounts` (`id`, `app_id`, `discount_price`, `starts_at`, `ends_at`) VALUES
-(1,  2,  1.99, '2023-05-01 00:00:00', '2023-05-15 23:59:59'),
-(2,  4,  0.99, '2023-06-01 00:00:00', '2023-06-10 23:59:59'),
-(3,  6,  0.49, '2023-04-01 00:00:00', '2023-04-07 23:59:59'),
-(4,  7,  2.99, '2023-07-01 00:00:00', '2023-07-31 23:59:59'),
-(5,  8,  3.99, '2023-08-01 00:00:00', '2023-08-14 23:59:59'),
-(6,  9,  5.99, '2023-09-01 00:00:00', '2023-09-30 23:59:59'),
-(7,  10, 1.99, '2023-06-20 00:00:00', '2023-06-27 23:59:59'),
-(8,  11, 1.49, '2023-07-10 00:00:00', '2023-07-20 23:59:59'),
-(9,  9,  7.99, '2023-11-24 00:00:00', '2023-11-30 23:59:59'),
-(10, 7,  3.99, '2023-12-20 00:00:00', '2023-12-31 23:59:59');
+INSERT INTO `play_store`.`apps` (`id`, `title`, `package_name`, `caption`, `company_id`, `status`) VALUES
+(1,  'Nova Notes',       'com.novalabs.notes',     'Швидкі нотатки з синхронізацією між пристроями',  1,  'published'),
+(2,  'PixelPaint',       'com.pixelforge.paint',   'Простий та потужний графічний редактор',          2,  'published'),
+(3,  'Garden Planner',   'com.greenleaf.garden',   NULL,                                              3,  'published'),
+(4,  'Lviv Transit',     'com.lvivapps.transit',   'Розклад громадського транспорту Львова',          4,  'published'),
+(5,  'Carpathian Quest', 'com.karpaty.quest',      'Пригодницька гра в Карпатах',                     5,  'published'),
+(6,  'BlueWave Player',  'com.bluewave.player',    'Музичний плеєр з еквалайзером',                   6,  'published'),
+(7,  'SkyNet Cleaner',   'com.skynet.cleaner',     'Очищення пам''яті пристрою',                      7,  'suspended'),
+(8,  'Orbit Lingo',      'com.orbit.lingo',        'Вивчення іноземних мов щодня',                    8,  'published'),
+(9,  'FitLife Tracker',  'com.fitlife.tracker',    NULL,                                              9,  'unpublished'),
+(10, 'CodeCraft IDE',    'com.codecraft.ide',      'Мобільне середовище для програмування',           10, 'published');
 
 INSERT INTO `play_store`.`apps_categories` (`app_id`, `category_id`) VALUES
-(1, 1), (2, 1), (3, 2), (4, 2), (4, 4), (5, 9), (6, 8),
-(7, 4), (8, 5), (9, 1), (10, 7), (11, 8), (11, 4), (12, 8);
+(1,  3),
+(2,  7),
+(3,  4),
+(4,  10),
+(5,  1),
+(6,  6),
+(7,  4),
+(8,  2),
+(9,  5),
+(10, 3);
 
-INSERT INTO `play_store`.`installations` (`app_id`, `device_id`, `installed_at`) VALUES
-(1,  1,  '2023-01-16 10:30:00'),
-(1,  3,  '2023-02-05 15:00:00'),
-(3,  1,  '2023-01-16 10:45:00'),
-(3,  2,  '2023-02-21 09:50:00'),
-(5,  5,  '2023-03-12 19:00:00'),
-(5,  3,  '2023-02-04 14:20:00'),
-(2,  2,  '2023-03-01 20:15:00'),
-(6,  4,  '2023-04-03 07:40:00'),
-(7,  5,  '2023-04-05 18:30:00'),
-(8,  12, '2023-05-10 12:10:00'),
-(9,  6,  '2023-06-02 21:00:00'),
-(10, 3,  '2023-06-22 08:25:00'),
-(11, 9,  '2023-07-12 16:35:00'),
-(12, 7,  '2023-04-20 13:00:00'),
-(4, 1,  '2023-06-30 07:10:00'),
-(2, 4,  '2023-05-20 20:30:00');
+INSERT INTO `play_store`.`apps_versions` (`id`, `app_id`, `version`, `size_bytes`, `created_at`) VALUES
+(1,  1,  '1.0.0', 15728640,  '2025-03-01 10:00:00'),
+(2,  1,  '1.1.0', 16777216,  '2025-06-15 10:00:00'),
+(3,  2,  '2.3.1', 52428800,  '2025-04-10 09:30:00'),
+(4,  3,  '1.0.5', 9437184,   '2025-05-05 12:00:00'),
+(5,  4,  '3.2.0', 21495808,  '2025-07-20 08:00:00'),
+(6,  5,  '0.9.8', 314572800, '2025-08-12 17:45:00'),
+(7,  6,  '4.5.2', 38797312,  '2025-09-01 11:20:00'),
+(8,  8,  '1.4.0', 27262976,  '2025-09-25 15:10:00'),
+(9,  7,  '2.0.0', 12582912,  '2025-10-03 13:00:00'),
+(10, 10, '5.0.1', 73400320,  '2025-10-28 18:30:00');
 
-INSERT INTO `play_store`.`payment_cards` (`id`, `account_id`, `token`, `card_brand`, `exp_date`, `last4`) VALUES
-(1,  1, 'tok_1A2b3C4d5E6f', 'Visa',             '2028-08-31', '4242'),
-(2,  1, 'tok_2B3c4D5e6F7g', 'Mastercard',       '2027-02-28', '5555'),
-(3,  2, 'tok_3C4d5E6f7G8h', 'Visa',             '2028-11-30', '1881'),
-(4,  2, 'tok_4D5e6F7g8H9i', 'Mastercard',       '2029-12-31', '4444'),
-(5,  3, 'tok_5E6f7G8h9I0j', 'Visa',             '2027-05-31', '1111'),
-(6,  3, 'tok_6F7g8H9i0J1k', 'American Express', '2028-09-30', '0005'),
-(7,  4, 'tok_7G8h9I0j1K2l', 'Mastercard',       '2027-01-31', '9424'),
-(8,  4, 'tok_8H9i0J1k2L3m', 'Visa',             '2029-06-30', '0119'),
-(9,  5, 'tok_9I0j1K2l3M4n', 'Visa',             '2028-03-31', '6781'),
-(10, 5, 'tok_0J1k2L3m4N5o', 'Mastercard',       '2027-10-31', '2222');
+INSERT INTO `play_store`.`installations` (`id`, `device_id`, `app_version_id`, `installed_at`, `updated_at`) VALUES
+(1,  1,  2,  '2025-06-20 10:00:00', '2025-07-01 09:00:00'),
+(2,  2,  3,  '2025-04-15 11:30:00', NULL),
+(3,  3,  4,  '2025-05-10 14:00:00', NULL),
+(4,  4,  5,  '2025-07-25 08:15:00', '2025-08-02 19:00:00'),
+(5,  5,  6,  '2025-08-15 20:00:00', NULL),
+(6,  6,  7,  '2025-09-05 12:45:00', NULL),
+(7,  7,  8,  '2025-09-30 16:20:00', '2025-10-10 10:10:00'),
+(8,  8,  9,  '2025-10-05 09:05:00', NULL),
+(9,  9,  10, '2025-10-30 21:00:00', NULL),
+(10, 10, 1,  '2025-03-05 07:30:00', '2025-06-20 07:30:00');
 
-INSERT INTO `play_store`.`reviews` (`account_id`, `app_id`, `rating`, `comment`, `created_at`) VALUES
-(1, 1,  4.5, 'Fun and addictive, great pixel art!',      '2023-02-10 20:00:00'),
-(3, 3,  5.0, 'Best minimalist notes app I have used.',   '2023-03-01 09:15:00'),
-(3, 2,  4.0, 'Good shooter, a bit short.',               '2023-03-10 22:30:00'),
-(4, 5,  4.5, 'Fast and reliable messenger.',             '2023-03-20 17:45:00'),
-(2, 6,  3.5, 'Accurate, but the UI is plain.',           '2023-04-10 08:00:00'),
-(4, 7,  4.0, 'Helps me stay on track with workouts.',    '2023-05-01 07:20:00'),
-(3, 8,  5.0, 'Powerful editor, worth every cent.',       '2023-05-20 13:10:00'),
-(5, 9,  4.5, 'Great story and music.',                   '2023-06-20 21:40:00'),
-(2, 10, 4.0, 'Simple budget planning.',                  '2023-07-01 10:30:00'),
-(5, 11, 5.0, NULL,                                       '2023-07-25 18:00:00'),
-(1, 4,  3.5, 'Nice idea, needs more plants.',            '2023-06-25 12:00:00'),
-(4, 2,  4.0, 'Cheap with the discount!',                 '2023-05-12 20:10:00');
+INSERT INTO `play_store`.`library` (`id`, `app_id`, `account_id`, `last_opened_at`, `added_at`, `data_ref`) VALUES
+(1,  1,  11, '2025-11-01 08:00:00', '2025-03-10 10:00:00', 'cloud://backup/11/1'),
+(2,  2,  12, '2025-10-20 19:30:00', '2025-04-12 12:00:00', 'cloud://backup/12/2'),
+(3,  3,  13, NULL,                  '2025-05-08 09:00:00', NULL),
+(4,  4,  14, '2025-11-10 07:45:00', '2025-07-22 15:00:00', 'cloud://backup/14/4'),
+(5,  5,  15, '2025-11-12 22:10:00', '2025-08-14 18:00:00', 'cloud://backup/15/5'),
+(6,  6,  11, '2025-10-29 13:00:00', '2025-09-03 11:00:00', NULL),
+(7,  8,  12, '2025-11-14 06:50:00', '2025-09-27 16:30:00', 'cloud://backup/12/8'),
+(8,  10, 13, '2025-11-05 17:20:00', '2025-10-30 21:10:00', 'cloud://backup/13/10'),
+(9,  3,  14, NULL,                  '2025-11-02 10:40:00', NULL),
+(10, 5,  1,  '2025-11-08 20:00:00', '2025-09-10 19:00:00', 'cloud://backup/1/5');
 
-INSERT INTO `play_store`.`bills` (`currency`, `amount_paid`, `app_id`, `payment_card_id`, `paid_at`, `discount_id`, `account_id`) VALUES
-('USD', 2.99, 2,  5,  '2023-03-01 20:10:00', NULL, 3),
-('EUR', 0.49, 6,  3,  '2023-04-03 07:35:00', 3,    2),
-('USD', 4.99, 7,  7,  '2023-04-05 18:25:00', NULL, 4),
-('USD', 6.99, 8,  6,  '2023-05-10 12:05:00', NULL, 3),
-('USD', 9.99, 9,  9,  '2023-06-02 20:55:00', NULL, 5),
-('EUR', 1.99, 10, 4,  '2023-06-22 08:20:00', 7,    2),
-('USD', 1.49, 11, 10, '2023-07-12 16:30:00', 8,    5),
-('USD', 0.99, 4,  1,  '2023-06-05 10:00:00', 2,    1),
-('USD', 1.99, 2,  8,  '2023-05-05 19:40:00', 1,    4),
-('USD', 2.99, 7,  2,  '2023-07-15 11:20:00', 4,    1);
+INSERT INTO `play_store`.`reviews` (`id`, `account_id`, `app_id`, `rating`, `comment`, `created_at`, `updated_at`) VALUES
+(1,  11, 1,  5.0, 'Чудовий застосунок, користуюся щодня',   '2025-03-20 10:00:00', NULL),
+(2,  12, 2,  4.5, 'Дуже зручний редактор',                  '2025-04-20 12:00:00', '2025-05-01 12:00:00'),
+(3,  13, 3,  3.5, NULL,                                      '2025-05-20 09:00:00', NULL),
+(4,  14, 4,  4.0, 'Розклад інколи запізнюється з оновленням', '2025-08-01 15:00:00', NULL),
+(5,  15, 5,  2.5, 'Гра часто вилітає',                      '2025-08-25 18:00:00', '2025-09-05 18:00:00'),
+(6,  11, 6,  4.8, 'Найкращий плеєр',                        '2025-09-10 11:00:00', NULL),
+(7,  12, 8,  1.0, 'Забагато реклами',                       '2025-10-05 16:30:00', NULL),
+(8,  13, 10, 3.0, NULL,                                      '2025-11-01 21:10:00', NULL),
+(9,  14, 3,  0.0, 'Не запускається',                        '2025-11-03 10:40:00', NULL),
+(10, 1,  5,  4.2, 'Цікавий сюжет',                          '2025-09-20 19:00:00', NULL);
 
-INSERT INTO `play_store`.`library` (`app_id`, `account_id`, `app_data`, `last_opened_at`) VALUES
-(1,  1, '{"level": 12, "high_score": 15400}',                 '2023-03-20 21:00:00'),
-(3,  3, '{"notes_count": 34, "theme": "dark"}',               '2023-07-01 08:00:00'),
-(2,  3, '{"level": 5, "ship": "falcon"}',                     '2023-03-15 22:00:00'),
-(2,  4, '{"level": 8, "ship": "phoenix"}',                    '2023-05-20 20:30:00'),
-(5,  4, '{"chats": 7, "notifications": true}',                '2023-08-01 18:00:00'),
-(6,  2, '{"units": "metric", "city": "Lviv"}',                '2023-08-12 07:30:00'),
-(7,  4, '{"workouts_done": 21, "goal": "endurance"}',         '2023-08-15 06:50:00'),
-(7,  1, '{"workouts_done": 9, "goal": "strength"}',           NULL),
-(8,  3, '{"filters_saved": 4}',                               '2023-06-01 19:45:00'),
-(9,  5, '{"level": 17, "gold": 2300}',                        '2023-07-30 22:10:00'),
-(10, 2, '{"currency": "EUR", "budgets": 3}',                  '2023-07-05 09:00:00'),
-(11, 5, '{"saved_routes": 6}',                                '2023-08-02 10:20:00'),
-(4,  1, '{"habits": 5, "streak": 14}',                        '2023-06-30 07:10:00'),
-(1,  2, '{"level": 3, "high_score": 4200}',                   '2023-02-10 21:00:00'),
-(3,  1, '{"notes_count": 12, "theme": "light"}',              '2023-02-01 08:30:00'),
-(5,  2, '{"chats": 3, "notifications": false}',               '2023-02-20 19:00:00'),
-(12, 4, '{"saved_guides": 2}',                                '2023-05-02 09:10:00');
+COMMIT;

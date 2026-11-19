@@ -1,5 +1,8 @@
 $kind: http-request
 name: GET /companies/:id/apps
-url: "{{baseUrl}}/companies/1/apps"
+description: Apps published by a company.
+url: "{{base_url}}/companies/:company_id/apps"
 method: GET
-order: 6000
+pathVariables:
+  company_id: "1"
+order: 3000

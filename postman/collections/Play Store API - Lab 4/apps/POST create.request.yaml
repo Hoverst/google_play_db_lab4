@@ -1,16 +1,17 @@
 $kind: http-request
-url: "{{baseUrl}}/apps"
+description: "Create an app. Required: title, package_name, company_id. Optional: caption, status."
+url: "{{base_url}}/apps"
 method: POST
 headers:
   Content-Type: application/json
 body:
-  type: text
+  type: json
   content: |-
     {
       "title": "Example App",
+      "package_name": "com.example.app",
       "caption": "A sample application",
-      "price": 4.99,
-      "currency": "USD",
-      "company_id": 1
+      "company_id": 1,
+      "status": "published"
     }
 order: 3000

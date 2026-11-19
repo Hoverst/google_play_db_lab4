@@ -1,13 +1,14 @@
 $kind: http-request
-url: "{{baseUrl}}/devices"
+description: "Create a device. Required: model, os_version."
+url: "{{base_url}}/devices"
 method: POST
 headers:
   Content-Type: application/json
 body:
-  type: text
+  type: json
   content: |-
     {
-      "model": "Pixel 8",
-      "os_version": "Android 14"
+      "model": "Pixel 9",
+      "os_version": "Android 15"
     }
 order: 3000

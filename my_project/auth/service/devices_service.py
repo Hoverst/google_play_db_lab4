@@ -1,34 +1,50 @@
 from flask import abort
+from sqlalchemy.exc import IntegrityError
 from my_project.auth.dao import devices_dao
-from my_project.utils.resource_update import prepare_update
+
 
 def get_all():
-    return [instance.to_dict() for instance in devices_dao.find_all()]
+    return [d.to_dict() for d in devices_dao.find_all()]
 
-def get_by_id(id):
-    instance = devices_dao.find_by_id(id)
-    if instance is None:
+
+def get_by_id(device_id):
+    device = devices_dao.find_by_id(device_id)
+    if device is None:
         abort(404)
-    return instance.to_dict()
+    return device.to_dict()
+
 
 def create(data):
-    required_fields = ['model', 'os_version']
-    for field in required_fields:
-        if field not in data:
-            abort(400, description=f"Missing required field: {field}")
-    instance = devices_dao.create(data)
-    return instance.to_dict()
+    try:
+        device = devices_dao.create(data)
+    except IntegrityError:
+        abort(409, description="Device model+os_version already exists")
+    return device.to_dict()
 
-def update(id, data, partial=False):
-    instance = devices_dao.find_by_id(id)
-    if instance is None:
-        abort(404)
-    clean = prepare_update('devices', data, partial=partial)
-    instance = devices_dao.update(instance, clean)
-    return instance.to_dict()
 
-def delete(id):
-    instance = devices_dao.find_by_id(id)
-    if instance is None:
+def update(device_id, data, partial=False):
+    device = devices_dao.find_by_id(device_id)
+    if device is None:
         abort(404)
-    devices_dao.delete(instance)
+    try:
+        device = devices_dao.update(device, data)
+    except IntegrityError:
+        abort(409, description="Device model+os_version already exists")
+    return device.to_dict()
+
+
+def delete(device_id):
+    device = devices_dao.find_by_id(device_id)
+    if device is None:
+        abort(404)
+    try:
+        devices_dao.delete(device)
+    except IntegrityError:
+        abort(409, description="Cannot delete device due to related records")
+
+
+def get_installations(device_id):
+    device = devices_dao.find_by_id(device_id)
+    if device is None:
+        abort(404)
+    return [i.to_dict() for i in device.installations]

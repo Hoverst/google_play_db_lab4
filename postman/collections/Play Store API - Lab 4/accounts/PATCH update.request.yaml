@@ -1,13 +1,15 @@
 $kind: http-request
-url: "{{baseUrl}}/accounts/1"
+description: "Partial update. At least one of: email, password, name."
+url: "{{base_url}}/accounts/:account_id"
 method: PATCH
 headers:
   Content-Type: application/json
+pathVariables:
+  account_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "name": "Updated User",
-      "country": "Canada"
+      "name": "Olena K."
     }
-order: 4000
+order: 5000

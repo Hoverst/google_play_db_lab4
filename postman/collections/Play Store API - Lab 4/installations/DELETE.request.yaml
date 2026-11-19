@@ -1,4 +1,7 @@
 $kind: http-request
-url: "{{baseUrl}}/installations/1/1"
+description: Delete an installation. Returns 204 No Content.
+url: "{{base_url}}/installations/:installation_id"
 method: DELETE
-order: 5000
+pathVariables:
+  installation_id: "1"
+order: 6000

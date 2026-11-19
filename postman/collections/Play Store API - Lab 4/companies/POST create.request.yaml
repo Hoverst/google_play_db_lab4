@@ -1,14 +1,15 @@
 $kind: http-request
-url: "{{baseUrl}}/companies"
+description: "Create a company. Required: company_name, developer_id. contact_email is optional and may be null."
+url: "{{base_url}}/companies"
 method: POST
 headers:
   Content-Type: application/json
 body:
-  type: text
+  type: json
   content: |-
     {
       "company_name": "Example Soft",
       "contact_email": "dev@example.com",
-      "developer_account_id": 1
+      "developer_id": 1
     }
 order: 3000

@@ -1,13 +1,16 @@
 $kind: http-request
-url: "{{baseUrl}}/reviews/1/1"
+description: "Full update. Required: rating, comment."
+url: "{{base_url}}/reviews/:review_id"
 method: PUT
 headers:
   Content-Type: application/json
+pathVariables:
+  review_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
-      "rating": 4.5,
-      "comment": "Great app"
+      "rating": 5.0,
+      "comment": "Excellent"
     }
 order: 4000

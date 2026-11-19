@@ -1,0 +1,8 @@
+$kind: http-request
+name: GET /apps_versions/:id/installations
+description: Installations of an app version.
+url: "{{base_url}}/apps_versions/:version_id/installations"
+method: GET
+pathVariables:
+  version_id: "1"
+order: 8000

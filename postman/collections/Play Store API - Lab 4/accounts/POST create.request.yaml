@@ -1,17 +1,15 @@
 $kind: http-request
-url: "{{baseUrl}}/accounts"
+description: "Create an account. Required: email, password (min 8 chars), name."
+url: "{{base_url}}/accounts"
 method: POST
 headers:
   Content-Type: application/json
 body:
-  type: text
+  type: json
   content: |-
     {
       "email": "new.user@example.com",
-      "password_hash": "hash_placeholder",
-      "name": "New User",
-      "is_developer": 0,
-      "country": "USA",
-      "created_at": "2026-01-01T12:00:00"
+      "password": "demo_password_4",
+      "name": "New User"
     }
 order: 3000

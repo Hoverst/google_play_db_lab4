@@ -1,3 +1,4 @@
 $kind: collection
 name: M:1 relationships
-order: 15000
+description: Read-only many-to-one / parent-child navigation endpoints.
+order: 10000

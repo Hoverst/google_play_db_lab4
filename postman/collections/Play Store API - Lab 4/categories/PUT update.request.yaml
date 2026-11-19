@@ -1,10 +1,13 @@
 $kind: http-request
-url: "{{baseUrl}}/categories/1"
+description: "Full update. Required: name."
+url: "{{base_url}}/categories/:category_id"
 method: PUT
 headers:
   Content-Type: application/json
+pathVariables:
+  category_id: "1"
 body:
-  type: text
+  type: json
   content: |-
     {
       "name": "Games"
